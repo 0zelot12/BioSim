@@ -28,6 +28,12 @@
     <Filter Include="Header Files\lib">
       <UniqueIdentifier>{76ba7cb0-00b0-462b-bd1a-099a003932bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\widgets">
+      <UniqueIdentifier>{348c191e-e0a1-4e37-ac02-c9ccefe857b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widgets">
+      <UniqueIdentifier>{c8562ccf-98e2-42c0-96d3-32fcc6a0b235}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="bio_sim_gui.qrc">
@@ -71,6 +77,12 @@
     <ClCompile Include="FastNoise.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
+    <ClCompile Include="creature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationScene.cpp">
+      <Filter>Source Files\widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attributes.hpp">
@@ -96,6 +108,15 @@
     </ClInclude>
     <ClInclude Include="FastNoise.h">
       <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="creature.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tile.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationScene.hpp">
+      <Filter>Header Files\widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

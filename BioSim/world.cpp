@@ -73,4 +73,8 @@ world::world(int x_dim, int y_dim)
     }
 }
 
+void world::add_creature(creature_type type, int x_pos, int y_pos)
+{
+}
+
 

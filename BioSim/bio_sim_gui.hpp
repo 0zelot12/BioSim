@@ -8,8 +8,17 @@
 #include "ui_bio_sim_gui.h"
 #include "bio_sim_presenter.hpp"
 #include "image.hpp"
+#include "SimulationScene.hpp"
 
 struct TERRAIN_IMAGE
+{
+    std::shared_ptr<image>  tga_image;
+    QByteArray              q_bytes;
+    QImage                  q_image;
+    QPixmap                 q_pixmap;
+};
+
+struct CREATURE_IMAGE
 {
     std::shared_ptr<image>  tga_image;
     QByteArray              q_bytes;
@@ -34,10 +43,12 @@ public slots:
 private:
     Ui::bio_sim_guiClass                                 _ui;
     bio_sim_presenter                                    _presenter;
-    QGraphicsScene                                       _simulation_scene;                          /* Scene connceted to simulation_area */
+    SimulationScene                                      _simulation_scene;                        /* Scene connceted to simulation_area */
 
     std::vector<std::shared_ptr<image>>                  m_tga_terrain_images;
     std::vector<std::shared_ptr<TERRAIN_IMAGE>>          m_terrain_images;
+    std::vector<std::shared_ptr<image>>                  m_tga_creature_images;
+    std::vector<std::shared_ptr<CREATURE_IMAGE>>         m_creature_images;
 
     void fill_creature_selection(int idx);                                                          /* Fills values of creature selection into the form */
 };

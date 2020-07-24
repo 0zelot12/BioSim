@@ -21,8 +21,8 @@
 class creature_type
 {
 private:
-	std::string name_, eigenschaften_, bild_pfad_;
-	unsigned int staerke_, geschwindigkeit_, lebensdauer_;
+	std::string		name_, eigenschaften_, bild_pfad_;
+	unsigned int	staerke_, geschwindigkeit_, lebensdauer_;
 
 	/* Vector containing the converted content of eigentschaften_  */
 	std::vector<properties> eigenschaften_list_;

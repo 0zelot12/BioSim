@@ -91,6 +91,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="creature.cpp" />
+    <ClCompile Include="SimulationScene.cpp" />
     <ClCompile Include="world.cpp" />
     <QtRcc Include="bio_sim_gui.qrc" />
     <QtUic Include="bio_sim_gui.ui" />
@@ -110,9 +112,12 @@
     <ClInclude Include="bio_sim_model.hpp" />
     <ClInclude Include="bio_sim_presenter.hpp" />
     <ClInclude Include="common_exceptions.hpp" />
+    <ClInclude Include="creature.hpp" />
     <ClInclude Include="creature_type.hpp" />
     <ClInclude Include="FastNoise.h" />
     <ClInclude Include="image.hpp" />
+    <ClInclude Include="SimulationScene.hpp" />
+    <ClInclude Include="tile.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

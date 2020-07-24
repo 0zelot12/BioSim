@@ -6,19 +6,58 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
 {
     _ui.setupUi(this);
 
+    /* Load creature images */
+    std::vector<std::shared_ptr<image>> land_creatures_tga_images   = image::load_images(".\\graphics\\environment\\land");
+    std::vector<std::shared_ptr<image>> water_creatures_tga_images  = image::load_images(".\\graphics\\environment\\wasser");
+
+    m_tga_creature_images.reserve(land_creatures_tga_images.size() + water_creatures_tga_images.size());
+
+    /* Combine land and water images */
+    m_tga_creature_images.insert(   m_tga_creature_images.end(),
+                                    land_creatures_tga_images.begin(), 
+                                    land_creatures_tga_images.end()
+    );
+
+    m_tga_creature_images.insert(   m_tga_creature_images.end(),
+                                    water_creatures_tga_images.begin(), 
+                                    water_creatures_tga_images.end()
+    );
+
+    /* Convert from image to CREATURE_IMAGE */
+    for (int i = 0; i < m_tga_creature_images.size(); i++)
+    {
+        CREATURE_IMAGE img;
+
+        img.tga_image = m_tga_creature_images[i];
+
+        QByteArray byteArr;
+        for (auto& byte : img.tga_image->pixel_data())
+        {
+            byteArr.append(byte);
+        }
+        img.q_bytes = byteArr;
+        img.q_image = QImage((unsigned char*)   img.q_bytes.data(),
+                                                img.tga_image->height(),
+                                                img.tga_image->height(),
+                                                QImage::Format_ARGB32
+        );
+        img.q_pixmap = QPixmap::fromImage(img.q_image);
+
+        m_creature_images.push_back(std::make_shared<CREATURE_IMAGE>(img));
+    }
+
     /* Populate the creature selection with data */
     auto creatures = _presenter.m_creature_types();
     for (int i = 0; i < creatures.size(); i++)
     {
         /* Store the vector index of the creature as data */
         _ui.creature_choice_box->addItem(QString::fromStdString(creatures[i]->name()),
-            QVariant::fromValue(i));
+                                         QVariant::fromValue(i));
     }
 
     /* Put the first creature_type in
     the list as initial value */
     fill_creature_selection(0);
-
 
     /* Convert from image to TERRAIN_IMAGE */
     for (int i = 0; i < 6; i++)
@@ -61,7 +100,7 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
             QGraphicsPixmapItem* pixmap_item = new QGraphicsPixmapItem(m_terrain_images[idx]->q_pixmap);
             _simulation_scene.addItem(pixmap_item);
             pixmap_item->setPos(m_terrain_images[0]->tga_image->height() * j,
-                m_terrain_images[0]->tga_image->width() * i);
+                                m_terrain_images[0]->tga_image->width() * i);
         }
     }
 
