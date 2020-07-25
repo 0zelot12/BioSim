@@ -4,7 +4,7 @@ bio_sim_gui::bio_sim_gui(QWidget* parent)
 try : QMainWindow(parent),
 m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
 {
-    _ui.setupUi(this);
+    m_ui.setupUi(this);
 
     /* Load creature images */
     std::vector<std::shared_ptr<image>> land_creatures_tga_images   = image::load_images(".\\graphics\\environment\\land");
@@ -47,11 +47,11 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
     }
 
     /* Populate the creature selection with data */
-    auto creatures = _presenter.m_creature_types();
+    auto creatures = m_presenter.m_creature_types();
     for (int i = 0; i < creatures.size(); i++)
     {
         /* Store the vector index of the creature as data */
-        _ui.creature_choice_box->addItem(QString::fromStdString(creatures[i]->name()),
+        m_ui.creature_choice_box->addItem(QString::fromStdString(creatures[i]->name()),
                                          QVariant::fromValue(i));
     }
 
@@ -83,32 +83,36 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
     }
 
     /* Configure QGraphicsView */
-    _ui.simulation_area->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    _ui.simulation_area->setCacheMode(QGraphicsView::CacheBackground);
-    _ui.simulation_area->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    _ui.simulation_area->setInteractive(false);
+    m_ui.simulation_area->setAlignment           (Qt::AlignLeft | Qt::AlignTop);
+    m_ui.simulation_area->setCacheMode           (QGraphicsView::CacheBackground);
+    m_ui.simulation_area->setViewportUpdateMode  (QGraphicsView::SmartViewportUpdate);
+    m_ui.simulation_area->setInteractive         (true);
 
     /* Configure QGraphicsScene */
-    _simulation_scene.setItemIndexMethod(QGraphicsScene::NoIndex);
+    m_simulation_scene.setItemIndexMethod        (QGraphicsScene::NoIndex);
 
     /* Fill scene with pixelmaps */
-    for (int i = 0; i < _presenter.model.WORLD_HEIGHT; i++)
+    for (uint32_t i = 0; i < m_presenter.model.WORLD_HEIGHT; i++)
     {
-        for (int j = 0; j < _presenter.model.WORLD_WIDTH; j++)
+        for (uint32_t j = 0; j < m_presenter.model.WORLD_WIDTH; j++)
         {
-            int idx = world::terrain_type_to_int(_presenter.model.m_world.terrain_map[world::coordinate_to_index(i, j, _presenter.model.WORLD_HEIGHT)]);
-            QGraphicsPixmapItem* pixmap_item = new QGraphicsPixmapItem(m_terrain_images[idx]->q_pixmap);
-            _simulation_scene.addItem(pixmap_item);
-            pixmap_item->setPos(m_terrain_images[0]->tga_image->height() * j,
-                                m_terrain_images[0]->tga_image->width() * i);
+            int idx = world::terrain_type_to_int(m_presenter.model.m_world.terrain_map[world::coordinate_to_index(i, j, m_presenter.model.WORLD_HEIGHT)]);
+            //QGraphicsPixmapItem* pixmap_item = new QGraphicsPixmapItem(m_terrain_images[idx]->q_pixmap);
+            QSimulationTile* pixmap_item = new QSimulationTile(m_terrain_images[idx]->q_pixmap);
+            pixmap_item->m_terrain_type_idx = idx;
+            pixmap_item->m_terrain_image = &m_terrain_images[idx]->q_pixmap;
+            m_simulation_scene.addItem(pixmap_item);
+            pixmap_item->setPos(m_terrain_images[0]->tga_image->height()*j,
+                                m_terrain_images[0]->tga_image->width() *i
+            );
         }
     }
 
     // Show scene
-    _ui.simulation_area->setScene(&_simulation_scene);
-    _ui.simulation_area->show();
+    m_ui.simulation_area->setScene(&m_simulation_scene);
+    m_ui.simulation_area->show();
 
-    _ui.statusBar->showMessage("Statusleiste");
+    m_ui.statusBar->showMessage("Statusleiste");
 }
 catch (const std::exception& e)
 {
@@ -153,12 +157,12 @@ void bio_sim_gui::on_creature_choice_box_currentIndexChanged(int index)
 void bio_sim_gui::fill_creature_selection(int idx)
 {
     /* Display correct name */
-    _ui.creature_choice_box->setCurrentIndex(idx);
+    m_ui.creature_choice_box->setCurrentIndex(idx);
 
-    auto creatures = _presenter.m_creature_types();
-    _ui.lifespan_edit->setText(QString::number(creatures[idx]->lebensdauer()));
-    _ui.strength_edit->setText(QString::number(creatures[idx]->staerke()));
-    _ui.speed_edit->setText(QString::number(creatures[idx]->geschwindigkeit()));
+    auto creatures = m_presenter.m_creature_types();
+    m_ui.lifespan_edit->setText  (QString::number(creatures[idx]->lebensdauer    ()));
+    m_ui.strength_edit->setText  (QString::number(creatures[idx]->staerke        ()));
+    m_ui.speed_edit->   setText  (QString::number(creatures[idx]->geschwindigkeit()));
 
     /* A creature_type can have multiple properties seperated by whitespaces */
     QString properties_str = "";
@@ -166,5 +170,5 @@ void bio_sim_gui::fill_creature_selection(int idx)
     {
         properties_str += QString::fromStdString(attributes::property_to_str(m_property)) + " ";
     }
-    _ui.properties_edit->setText(properties_str);
+    m_ui.properties_edit->setText(properties_str);
 }

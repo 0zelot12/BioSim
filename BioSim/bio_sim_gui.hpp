@@ -8,23 +8,8 @@
 #include "ui_bio_sim_gui.h"
 #include "bio_sim_presenter.hpp"
 #include "image.hpp"
-#include "SimulationScene.hpp"
-
-struct TERRAIN_IMAGE
-{
-    std::shared_ptr<image>  tga_image;
-    QByteArray              q_bytes;
-    QImage                  q_image;
-    QPixmap                 q_pixmap;
-};
-
-struct CREATURE_IMAGE
-{
-    std::shared_ptr<image>  tga_image;
-    QByteArray              q_bytes;
-    QImage                  q_image;
-    QPixmap                 q_pixmap;
-};
+#include "QSimulationScene.hpp"
+#include "QSimulationTile.hpp"
 
 class bio_sim_gui : public QMainWindow
 {
@@ -32,6 +17,11 @@ class bio_sim_gui : public QMainWindow
 
 public:
     bio_sim_gui(QWidget *parent = Q_NULLPTR);
+
+    std::vector<std::shared_ptr<image>>                  m_tga_terrain_images;
+    std::vector<std::shared_ptr<TERRAIN_IMAGE>>          m_terrain_images;
+    std::vector<std::shared_ptr<image>>                  m_tga_creature_images;
+    std::vector<std::shared_ptr<CREATURE_IMAGE>>         m_creature_images;
 
 public slots:
     void on_ctrl_start_btn_clicked();
@@ -41,14 +31,9 @@ public slots:
     void on_creature_choice_box_currentIndexChanged(int index);
 
 private:
-    Ui::bio_sim_guiClass                                 _ui;
-    bio_sim_presenter                                    _presenter;
-    SimulationScene                                      _simulation_scene;                        /* Scene connceted to simulation_area */
-
-    std::vector<std::shared_ptr<image>>                  m_tga_terrain_images;
-    std::vector<std::shared_ptr<TERRAIN_IMAGE>>          m_terrain_images;
-    std::vector<std::shared_ptr<image>>                  m_tga_creature_images;
-    std::vector<std::shared_ptr<CREATURE_IMAGE>>         m_creature_images;
+    Ui::bio_sim_guiClass                                 m_ui;
+    bio_sim_presenter                                    m_presenter;
+    QSimulationScene                                     m_simulation_scene;                        /* Scene connceted to simulation_area */
 
     void fill_creature_selection(int idx);                                                          /* Fills values of creature selection into the form */
 };

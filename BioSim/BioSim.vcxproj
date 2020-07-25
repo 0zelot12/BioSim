@@ -92,7 +92,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="creature.cpp" />
-    <ClCompile Include="SimulationScene.cpp" />
+    <ClCompile Include="QSimulationScene.cpp" />
+    <ClCompile Include="QSimulationTile.cpp" />
     <ClCompile Include="world.cpp" />
     <QtRcc Include="bio_sim_gui.qrc" />
     <QtUic Include="bio_sim_gui.ui" />
@@ -116,7 +117,8 @@
     <ClInclude Include="creature_type.hpp" />
     <ClInclude Include="FastNoise.h" />
     <ClInclude Include="image.hpp" />
-    <ClInclude Include="SimulationScene.hpp" />
+    <ClInclude Include="QSimulationScene.hpp" />
+    <ClInclude Include="QSimulationTile.hpp" />
     <ClInclude Include="tile.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>

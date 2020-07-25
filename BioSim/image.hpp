@@ -11,6 +11,12 @@
 #include <fstream>
 #include <filesystem>
 
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QGraphicsScene>
+#include <QtWidgets/QGraphicsPixmapItem>
+
+
 #include "common_exceptions.hpp"
 
 /**
@@ -111,3 +117,19 @@ public:
 	image(const std::string& image_path);	
 	~image();
 }; 
+
+struct TERRAIN_IMAGE
+{
+	std::shared_ptr<image>  tga_image;
+	QByteArray              q_bytes;
+	QImage                  q_image;
+	QPixmap                 q_pixmap;
+};
+
+struct CREATURE_IMAGE
+{
+	std::shared_ptr<image>  tga_image;
+	QByteArray              q_bytes;
+	QImage                  q_image;
+	QPixmap                 q_pixmap;
+};
