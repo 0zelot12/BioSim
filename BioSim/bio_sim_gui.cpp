@@ -32,17 +32,19 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
 
         img.tga_image = m_tga_creature_images[i];
 
-        QByteArray byteArr;
+        QByteArray byte_array;
         for (auto& byte : img.tga_image->pixel_data())
         {
-            byteArr.append(byte);
+            byte_array.append(byte);
         }
-        img.q_bytes = byteArr;
+        img.q_bytes = byte_array;
+        /* AAAAAUFPASSEN */
+        /* Move Konstruktor */
         img.q_image = QImage((unsigned char*)   img.q_bytes.data(),
                                                 img.tga_image->height(),
                                                 img.tga_image->height(),
                                                 QImage::Format_ARGB32
-        );
+        ).mirrored();
         img.q_pixmap = QPixmap::fromImage(img.q_image);
 
         m_creature_images.push_back(std::make_shared<CREATURE_IMAGE>(img));
@@ -150,7 +152,7 @@ void bio_sim_gui::on_place_creature_btn_clicked()
     int new_creature_index = m_ui.creature_choice_box->currentIndex();
     auto type = this->m_presenter.m_creature_types()[new_creature_index];
 
-    /* Check if creature is an land creature */
+    /* Check if creature is a land creature */
     bool is_land = new_creature_index < 8 ? false : true;
 
     /* Instantiate creature */
