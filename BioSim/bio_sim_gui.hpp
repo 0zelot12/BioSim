@@ -6,10 +6,10 @@
 #include <QtWidgets/QGraphicsPixmapItem>
 
 #include "ui_bio_sim_gui.h"
-#include "bio_sim_presenter.hpp"
-#include "image.hpp"
 #include "QSimulationScene.hpp"
 #include "QSimulationTile.hpp"
+#include "bio_sim_presenter.hpp"
+#include "image.hpp"
 #include "creature.hpp"
 
 /**

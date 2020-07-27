@@ -1,10 +1,33 @@
 #include "QSimulationScene.hpp"
 
-void QSimulationScene::add_new_creature(creature new_creature)
+bool QSimulationScene::add_new_creature(creature new_creature)
 {
     QSimulationTile* current_tile = (QSimulationTile*)this->m_last_cursor_item;
+
+    if (!current_tile)
+    {
+        return false;
+    }
+
+    /* Check if creature type and terrain type match */
+    if (new_creature.m_is_land_creature)
+    {
+        if (current_tile->m_terrain_type_idx == 0 || current_tile->m_terrain_type_idx == 4)
+        {
+            return false;
+        }
+    }
+    else 
+    {
+        if (current_tile->m_terrain_type_idx != 0 && current_tile->m_terrain_type_idx != 4)
+        {
+            return false;
+        }
+    }
+
     current_tile->m_creatures_on_tile.push_back(new_creature);
     this->draw_creatures(true);
+    return true;
 }
 
 void QSimulationScene::draw_creatures(bool is_cursor)

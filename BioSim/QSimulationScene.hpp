@@ -20,7 +20,7 @@ class QSimulationScene : public QGraphicsScene
 {
 public:
     /* Add new creature to simualtion */
-    void add_new_creature(creature new_creature);
+    bool add_new_creature(creature new_creature);
     /* Draw all creatures on a given tile */
     void draw_creatures(bool is_cursor);
 protected:

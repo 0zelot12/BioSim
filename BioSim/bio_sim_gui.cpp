@@ -54,7 +54,7 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
     {
         /* Store the vector index of the creature as data */
         m_ui.creature_choice_box->addItem(QString::fromStdString(creatures[i]->name()),
-                                         QVariant::fromValue(i));
+                                          QVariant::fromValue(i));
     }
 
     /* Put the first creature_type in
@@ -153,7 +153,7 @@ void bio_sim_gui::on_place_creature_btn_clicked()
     /* Check if creature is an land creature */
     bool is_land = new_creature_index < 8 ? false : true;
 
-    /* Instatiate creature */
+    /* Instantiate creature */
     creature* new_creature = new creature(  type->staerke(), 
                                             type->geschwindigkeit(), 
                                             type->lebensdauer(), 
@@ -163,12 +163,18 @@ void bio_sim_gui::on_place_creature_btn_clicked()
                                             is_land
     );
 
+
+    /* Draw creature, show error if it fails */
+    bool success = this->m_simulation_scene.add_new_creature(*new_creature);
+    if (!success)
+    {
+        QMessageBox msg_box;
+        msg_box.setText("You can't place this here!");
+        msg_box.exec();
+    }
+
     /* Put instance to into the model */
     this->m_presenter.model.m_world.creatures_total.push_back(new_creature);
-
-    /* Draw creature */
-    this->m_simulation_scene.add_new_creature(*new_creature);
-
 }
 
 void bio_sim_gui::on_creature_choice_box_currentIndexChanged(int index)
