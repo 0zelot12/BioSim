@@ -14,11 +14,19 @@
 #include <memory>
 #include <QtWidgets/QMainWindow>
 
+/**
+*************************************************************************
+* @class bio_sim_presenter
+*
+* Handles communication between model and gui
+*************************************************************************/
 class bio_sim_presenter
 {
 public:
 	bio_sim_presenter();
+	/* Exposes the creature types */
 	const std::vector<std::shared_ptr<creature_type>>& m_creature_types();
+	/* Model object containing the simulation table */
 	bio_sim_model model;
 	
 private:

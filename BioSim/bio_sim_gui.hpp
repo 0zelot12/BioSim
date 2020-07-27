@@ -10,7 +10,14 @@
 #include "image.hpp"
 #include "QSimulationScene.hpp"
 #include "QSimulationTile.hpp"
+#include "creature.hpp"
 
+/**
+*************************************************************************
+* @class bio_sim_gui
+*
+* Class handles user interface
+*************************************************************************/
 class bio_sim_gui : public QMainWindow
 {
     Q_OBJECT
@@ -18,9 +25,13 @@ class bio_sim_gui : public QMainWindow
 public:
     bio_sim_gui(QWidget *parent = Q_NULLPTR);
 
+    /* Terrain images in TGA format */
     std::vector<std::shared_ptr<image>>                  m_tga_terrain_images;
+    /* Terrain images in custom format */
     std::vector<std::shared_ptr<TERRAIN_IMAGE>>          m_terrain_images;
+    /* Creature images in TGA format */
     std::vector<std::shared_ptr<image>>                  m_tga_creature_images;
+    /* Creature images in custom format */
     std::vector<std::shared_ptr<CREATURE_IMAGE>>         m_creature_images;
 
 public slots:
@@ -31,9 +42,13 @@ public slots:
     void on_creature_choice_box_currentIndexChanged(int index);
 
 private:
+    /* Qt gui class */
     Ui::bio_sim_guiClass                                 m_ui;
+    /* Presenter get data from the model and passes it to the GUI */
     bio_sim_presenter                                    m_presenter;
-    QSimulationScene                                     m_simulation_scene;                        /* Scene connceted to simulation_area */
+    /* Scene connceted to simulation_area */
+    QSimulationScene                                     m_simulation_scene;   
 
-    void fill_creature_selection(int idx);                                                          /* Fills values of creature selection into the form */
+    /* Fills values of creature selection into the form */
+    void fill_creature_selection(int idx);                                                          
 };

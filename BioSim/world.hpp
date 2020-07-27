@@ -19,19 +19,26 @@ enum class TERRAIN_TYPE {	DEEP_WATER,
 							SNOW 
 						};
 
+/**
+*************************************************************************
+* @class world
+*
+* Class holding the content of the simulation
+*************************************************************************/
 class world
 {
 public:
 	/* Converts floats to its corresponding TERRAIN_TYPE */
 	static TERRAIN_TYPE float_to_terrain_type	(float input);					
-	static int terrain_type_to_int				(TERRAIN_TYPE terrain_type);	/* Converts TERRAIN_TYPE to its corresponding to its integer represantation, used for indexing */
-	static int coordinate_to_index				(int x, int y, int y_dim);		/* Converts 2D array coordinates to linear vector index */
+	/* Converts TERRAIN_TYPE to its corresponding to its integer represantation, used for indexing */
+	static int terrain_type_to_int				(TERRAIN_TYPE terrain_type);	
+	/* Converts 2D array coordinates to linear vector index */
+	static int coordinate_to_index				(int x, int y, int y_dim);		
+	
+	/* Contains the type of each tile */
+	std::vector<TERRAIN_TYPE>				terrain_map;
+	/* Contains pointers to all creature instances placed on the map */
+	std::vector<creature*>					creatures_total;	
 
-	std::vector<TERRAIN_TYPE>				terrain_map;		/*  */
-	std::vector<std::shared_ptr<creature>>	creatures_total;	/* Contains pointers to all creature instances placed on the map */
-
-	world(int x_dim, int y_dim);								/* */
-
-private:
-	void add_creature(creature_type type, int x_pos, int y_pos);
+	world(int x_dim, int y_dim);							
 };

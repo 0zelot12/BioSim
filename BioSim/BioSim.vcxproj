@@ -119,7 +119,6 @@
     <ClInclude Include="image.hpp" />
     <ClInclude Include="QSimulationScene.hpp" />
     <ClInclude Include="QSimulationTile.hpp" />
-    <ClInclude Include="tile.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

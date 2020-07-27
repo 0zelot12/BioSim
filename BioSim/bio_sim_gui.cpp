@@ -12,16 +12,18 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
 
     m_tga_creature_images.reserve(land_creatures_tga_images.size() + water_creatures_tga_images.size());
 
+    m_tga_creature_images.insert(   m_tga_creature_images.end(),
+                                    water_creatures_tga_images.begin(),
+                                    water_creatures_tga_images.end()
+    );
+
     /* Combine land and water images */
     m_tga_creature_images.insert(   m_tga_creature_images.end(),
                                     land_creatures_tga_images.begin(), 
                                     land_creatures_tga_images.end()
     );
 
-    m_tga_creature_images.insert(   m_tga_creature_images.end(),
-                                    water_creatures_tga_images.begin(), 
-                                    water_creatures_tga_images.end()
-    );
+
 
     /* Convert from image to CREATURE_IMAGE */
     for (int i = 0; i < m_tga_creature_images.size(); i++)
@@ -97,10 +99,10 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
         for (uint32_t j = 0; j < m_presenter.model.WORLD_WIDTH; j++)
         {
             int idx = world::terrain_type_to_int(m_presenter.model.m_world.terrain_map[world::coordinate_to_index(i, j, m_presenter.model.WORLD_HEIGHT)]);
-            //QGraphicsPixmapItem* pixmap_item = new QGraphicsPixmapItem(m_terrain_images[idx]->q_pixmap);
             QSimulationTile* pixmap_item = new QSimulationTile(m_terrain_images[idx]->q_pixmap);
             pixmap_item->m_terrain_type_idx = idx;
             pixmap_item->m_terrain_image = &m_terrain_images[idx]->q_pixmap;
+            pixmap_item->m_current_image_data = m_terrain_images[idx]->q_pixmap;
             m_simulation_scene.addItem(pixmap_item);
             pixmap_item->setPos(m_terrain_images[0]->tga_image->height()*j,
                                 m_terrain_images[0]->tga_image->width() *i
@@ -144,9 +146,29 @@ void bio_sim_gui::on_ctrl_step_btn_clicked()
 
 void bio_sim_gui::on_place_creature_btn_clicked()
 {
-    QMessageBox msg_box;
-    msg_box.setText("Place button clicked");
-    msg_box.exec();
+    /* Get selected creature type */
+    int new_creature_index = m_ui.creature_choice_box->currentIndex();
+    auto type = this->m_presenter.m_creature_types()[new_creature_index];
+
+    /* Check if creature is an land creature */
+    bool is_land = new_creature_index < 8 ? false : true;
+
+    /* Instatiate creature */
+    creature* new_creature = new creature(  type->staerke(), 
+                                            type->geschwindigkeit(), 
+                                            type->lebensdauer(), 
+                                            type->name(), 
+                                            type->eigenschaften_list(), 
+                                            &m_creature_images[new_creature_index]->q_pixmap,
+                                            is_land
+    );
+
+    /* Put instance to into the model */
+    this->m_presenter.model.m_world.creatures_total.push_back(new_creature);
+
+    /* Draw creature */
+    this->m_simulation_scene.add_new_creature(*new_creature);
+
 }
 
 void bio_sim_gui::on_creature_choice_box_currentIndexChanged(int index)

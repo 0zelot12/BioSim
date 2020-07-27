@@ -50,6 +50,11 @@ int world::coordinate_to_index(int x, int y, int y_dim)
     return x + (y * y_dim);
 }
 
+bool world::add_creature(creature* instance)
+{
+	return false;
+}
+
 world::world(int x_dim, int y_dim)
 {
     /* Set size of map */
@@ -72,9 +77,3 @@ world::world(int x_dim, int y_dim)
         }
     }
 }
-
-void world::add_creature(creature_type type, int x_pos, int y_pos)
-{
-}
-
-

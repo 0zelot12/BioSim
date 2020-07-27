@@ -115,9 +115,6 @@
     <ClInclude Include="creature.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tile.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="QSimulationScene.hpp">
       <Filter>Header Files\widgets</Filter>
     </ClInclude>
