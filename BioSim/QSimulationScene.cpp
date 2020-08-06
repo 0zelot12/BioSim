@@ -1,6 +1,6 @@
 #include "QSimulationScene.hpp"
 
-bool QSimulationScene::add_new_creature(creature new_creature)
+bool QSimulationScene::add_new_creature(creature* new_creature)
 {
     QSimulationTile* current_tile = (QSimulationTile*)this->m_last_cursor_item;
 
@@ -9,8 +9,10 @@ bool QSimulationScene::add_new_creature(creature new_creature)
         return false;
     }
 
+    new_creature->m_current_position = current_tile->m_tile_map_idx;
+
     /* Check if creature type and terrain type match */
-    if (new_creature.m_is_land_creature)
+    if (new_creature->m_is_land_creature)
     {
         if (current_tile->m_terrain_type_idx == 0 || current_tile->m_terrain_type_idx == 4)
         {
@@ -36,12 +38,14 @@ void QSimulationScene::draw_creatures(bool is_cursor)
 
     QPixmap tile_with_creature = current_tile->m_current_image_data;
     QPainter painter(&tile_with_creature);
+
     for (int i = 0; i < current_tile->m_creatures_on_tile.size(); i++)
     {
-        painter.drawPixmap(0, 0, *current_tile->m_creatures_on_tile[i].m_creature_image);
+        painter.drawPixmap(0, 0, *(current_tile->m_creatures_on_tile[i]->m_creature_image));
     }
 
-    if (is_cursor) {
+    if (is_cursor)
+    {
         QPixmap cursor_pixmap(".\\graphics\\environment\\cursor\\cursor.tga");
         painter.drawPixmap(0, 0, cursor_pixmap);
     }

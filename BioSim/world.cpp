@@ -50,7 +50,41 @@ int world::coordinate_to_index(int x, int y, int y_dim)
     return x + (y * y_dim);
 }
 
+Point2D world::index_to_coordinate(int idx, int y_dim)
+{
+    Point2D point;
+
+    point.y = idx / y_dim;
+    point.x = idx - (point.y * y_dim);
+
+    return point;
+}
+
+std::vector<QSimulationTile*> world::get_adjacent_tiles(QSimulationTile* current_tile)
+{
+    std::vector<QSimulationTile*> adjacent_tiles;
+    adjacent_tiles.reserve(8);
+
+    Point2D point = index_to_coordinate(current_tile->m_tile_map_idx, this->m_height);
+
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x - 1,     point.y - 1,    this->m_width)));
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x,         point.y - 1,    this->m_width)));
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x + 1,     point.y - 1,    this->m_width)));
+
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x - 1,     point.y,        this->m_width)));
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x + 1,     point.y,        this->m_width)));
+
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x - 1,     point.y + 1,    this->m_width)));
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x,         point.y + 1,    this->m_width)));
+    adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x + 1,     point.y + 1,    this->m_width)));
+
+    return adjacent_tiles;
+}
+
 world::world(int x_dim, int y_dim)
+    :
+    m_height(y_dim),
+    m_width(x_dim)
 {
     /* Set size of map */
     terrain_map.resize(x_dim * y_dim);
@@ -58,6 +92,7 @@ world::world(int x_dim, int y_dim)
     /* Set noise function and its parameter */
     FastNoise noise_module;
     noise_module.SetNoiseType(FastNoise::Perlin);
+
     srand(time(NULL));
     noise_module.SetSeed(rand() % 10000);
     noise_module.SetFrequency(0.03);

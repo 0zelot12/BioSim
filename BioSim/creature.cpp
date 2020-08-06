@@ -7,7 +7,7 @@ creature::creature(unsigned int strength, unsigned int life_span, int position, 
 	m_life_span	(life_span),
 	m_name		(name),
 	m_properties(properties),
-	m_position	(position),
+	m_current_position	(position),
 	m_creature_image(creature_image),
 	m_is_land_creature(is_land_creature)
 {

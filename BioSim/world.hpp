@@ -10,14 +10,26 @@
 #include "image.hpp"
 #include "FastNoise.h"
 #include "creature.hpp"
+#include "QSimulationTile.hpp"
 
-enum class TERRAIN_TYPE {	DEEP_WATER, 
-							SHALLOW_WATER, 
-							SAND, 
-							EARTH, 
-							STONE, 
-							SNOW 
-						};
+#include <vector>
+#include <memory>
+
+enum class TERRAIN_TYPE 
+{		
+	DEEP_WATER, 
+	SHALLOW_WATER, 
+	SAND, 
+	EARTH, 
+	STONE, 
+	SNOW 			
+};
+
+struct Point2D 
+{
+	int x;
+	int y;
+};
 
 /**
 *************************************************************************
@@ -28,17 +40,24 @@ enum class TERRAIN_TYPE {	DEEP_WATER,
 class world
 {
 public:
+	int m_height, m_width;
 	/* Converts floats to its corresponding TERRAIN_TYPE */
 	static TERRAIN_TYPE float_to_terrain_type	(float input);					
 	/* Converts TERRAIN_TYPE to its corresponding to its integer represantation, used for indexing */
 	static int terrain_type_to_int				(TERRAIN_TYPE terrain_type);	
 	/* Converts 2D array coordinates to linear vector index */
-	static int coordinate_to_index				(int x, int y, int y_dim);		
+	static int coordinate_to_index				(int x, int y, int y_dim);	
+
+	static Point2D index_to_coordinate			(int idx, int y_dim);
+
+	std::vector<QSimulationTile*> get_adjacent_tiles(QSimulationTile* current_tile);
 	
 	/* Contains the type of each tile */
-	std::vector<TERRAIN_TYPE>				terrain_map;
+	std::vector<TERRAIN_TYPE>						terrain_map;
+	/* Contains all tiles */
+	std::vector<QSimulationTile*>					tile_map;
 	/* Contains pointers to all creature instances placed on the map */
-	std::vector<creature*>					creatures_total;	
+	std::vector<std::shared_ptr<creature>>			creatures_total;	
 
-	world(int x_dim, int y_dim);							
+	world(int x_dim, int y_dim);		
 };

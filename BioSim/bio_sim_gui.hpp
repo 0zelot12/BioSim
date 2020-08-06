@@ -11,6 +11,7 @@
 #include "bio_sim_presenter.hpp"
 #include "image.hpp"
 #include "creature.hpp"
+#include "common_exceptions.hpp"
 
 /**
 *************************************************************************

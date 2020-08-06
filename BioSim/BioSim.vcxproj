@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="a_star.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="QSimulationScene.cpp" />
     <ClCompile Include="QSimulationTile.cpp" />
@@ -110,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attributes.hpp" />
+    <ClInclude Include="a_star.hpp" />
     <ClInclude Include="bio_sim_model.hpp" />
     <ClInclude Include="bio_sim_presenter.hpp" />
     <ClInclude Include="common_exceptions.hpp" />

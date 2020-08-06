@@ -3,6 +3,7 @@
 #include "creature_type.hpp"
 #include "image.hpp"
 #include "world.hpp"
+#include "a_star.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -28,6 +29,8 @@ public:
 	std::vector<std::shared_ptr<creature_type>> m_creature_types;
 	/* World object containing terrain data */
 	world										m_world;
+
+	void test_pathfinding();
 
 	/* y dimension of the world in tiles */
 	const static int WORLD_HEIGHT	= 128;
