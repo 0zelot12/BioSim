@@ -8,49 +8,50 @@
 //
 /////////////////////////////////////////////////////////////
 
-creature_type::creature_type(const std::string& name, unsigned int staerke, unsigned int geschwindigkeit, unsigned int lebensdauer, const std::string& eigenschaften, const std::string& bild_pfad)
+creature_type::creature_type(const std::string& name, unsigned int staerke, unsigned int geschwindigkeit, 
+								unsigned int lebensdauer, const std::string& eigenschaften, const std::string& bild_pfad)
 	:
-	name_(name),
-	eigenschaften_(eigenschaften),
-	bild_pfad_(bild_pfad),
-	staerke_(staerke),
-	geschwindigkeit_(geschwindigkeit),
-	lebensdauer_(lebensdauer)
+	m_name		(name				),
+	m_properties(eigenschaften		),
+	m_image_path(bild_pfad			),
+	m_strength	(staerke			),
+	m_speed		(geschwindigkeit	),
+	m_life_span	(lebensdauer		)
 
 {
-	attributes::set_eigenschaften(eigenschaften, eigenschaften_list_);
+	attributes::set_eigenschaften(eigenschaften, m_properties_list);
 }
 
 const std::vector<std::string> ATTRIBUTE_NAMES = { "Name", "Staerke", "Geschwindigkeit", "Lebensdauer", "Eigenschaften", "Bild" };
 
 std::string creature_type::name() const
 {
-	return name_;
+	return m_name;
 }
 
 std::string creature_type::bild_pfad() const
 {
-	return bild_pfad_;
+	return m_image_path;
 }
 
 unsigned int creature_type::staerke() const
 {
-	return staerke_;
+	return m_strength;
 }
 
 unsigned int creature_type::geschwindigkeit() const
 {
-	return geschwindigkeit_;
+	return m_speed;
 }
 
 unsigned int creature_type::lebensdauer() const
 {
-	return lebensdauer_;
+	return m_life_span;
 }
 
 std::vector<properties> creature_type::eigenschaften_list() const
 {
-	return eigenschaften_list_;
+	return m_properties_list;
 }
 
 std::vector<std::shared_ptr<creature_type>> creature_type::load(const std::string& path)

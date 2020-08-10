@@ -1,5 +1,6 @@
-#include "bio_sim_gui.hpp"
 #include <QtWidgets/QApplication>
+
+#include "bio_sim_gui.hpp"
 
 int main(int argc, char *argv[])
 {

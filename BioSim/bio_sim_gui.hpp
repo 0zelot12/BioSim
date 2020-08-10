@@ -17,7 +17,7 @@
 *************************************************************************
 * @class bio_sim_gui
 *
-* Class handles user interface
+* Class handles user interface EIGENTLICH PRESENTER
 *************************************************************************/
 class bio_sim_gui : public QMainWindow
 {
@@ -43,7 +43,7 @@ public slots:
     void on_creature_choice_box_currentIndexChanged(int index);
 
 private:
-    /* Qt gui class */
+    /* Qt GUI class */
     Ui::bio_sim_guiClass                                 m_ui;
     /* Presenter get data from the model and passes it to the GUI */
     bio_sim_presenter                                    m_presenter;

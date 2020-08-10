@@ -1,27 +1,41 @@
 #include "world.hpp"
 
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: world
+//
+//
+/////////////////////////////////////////////////////////////
+
 TERRAIN_TYPE world::float_to_terrain_type(float input)
 {
-    if (input >= -1 && input <= -0.25) {
+    if (input >= -1 && input <= -0.25)
+    {
         return TERRAIN_TYPE::DEEP_WATER;
     }
 
-    else if (input >= -0.25 && input <= 0) {
+    else if (input >= -0.25 && input <= 0)
+    {
         return TERRAIN_TYPE::SHALLOW_WATER;
     }
-    else if (input >= 0 && input <= 0.1) {
+    else if (input >= 0 && input <= 0.1)
+    {
         return TERRAIN_TYPE::SAND;
     }
 
-    else if (input >= 0.1 && input <= 0.125) {
+    else if (input >= 0.1 && input <= 0.125)
+    {
         return TERRAIN_TYPE::EARTH;
     }
 
-    else if (input >= 0.125 && input <= 0.3) {
+    else if (input >= 0.125 && input <= 0.3)
+    {
         return TERRAIN_TYPE::STONE;
     }
 
-    else if (input >= 0.3 && input <= 1) {
+    else if (input >= 0.3 && input <= 1)
+    {
         return TERRAIN_TYPE::SNOW;
     }
 
@@ -50,9 +64,9 @@ int world::coordinate_to_index(int x, int y, int y_dim)
     return x + (y * y_dim);
 }
 
-Point2D world::index_to_coordinate(int idx, int y_dim)
+POINT_2D world::index_to_coordinate(int idx, int y_dim)
 {
-    Point2D point;
+    POINT_2D point;
 
     point.y = idx / y_dim;
     point.x = idx - (point.y * y_dim);
@@ -65,7 +79,7 @@ std::vector<QSimulationTile*> world::get_adjacent_tiles(QSimulationTile* current
     std::vector<QSimulationTile*> adjacent_tiles;
     adjacent_tiles.reserve(8);
 
-    Point2D point = index_to_coordinate(current_tile->m_tile_map_idx, this->m_height);
+    POINT_2D point = index_to_coordinate(current_tile->m_tile_map_idx, this->m_height);
 
     adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x - 1,     point.y - 1,    this->m_width)));
     adjacent_tiles.push_back(this->tile_map.at(coordinate_to_index(point.x,         point.y - 1,    this->m_width)));

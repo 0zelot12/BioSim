@@ -16,19 +16,14 @@ struct node
 class a_star
 {
 public:
-	/* Methods */
 	std::vector<QSimulationTile> calc_path(const std::shared_ptr<creature> creature, QSimulationTile* target_tile);
 	a_star(const world& world);
 
 private:
-	/* Methods */
-
 	void expand_node(QSimulationTile* current_node, QSimulationTile* target_tile);
-	int calc_distance(Point2D start_point, Point2D end_point);
+	int calc_distance(POINT_2D start_point, POINT_2D end_point);
 
-	/* Class member */
 	std::vector<QSimulationTile*>							open_list;
-	//Set??
 	std::vector<QSimulationTile*>							closed_list;
 	world													m_world;
 };

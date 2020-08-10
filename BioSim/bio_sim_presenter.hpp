@@ -18,7 +18,7 @@
 *************************************************************************
 * @class bio_sim_presenter
 *
-* Handles communication between model and gui
+* NOT NEEDED
 *************************************************************************/
 class bio_sim_presenter
 {

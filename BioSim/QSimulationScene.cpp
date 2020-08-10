@@ -1,5 +1,13 @@
 #include "QSimulationScene.hpp"
 
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: QSimulationScene
+//
+//
+/////////////////////////////////////////////////////////////
+
 bool QSimulationScene::add_new_creature(creature* new_creature)
 {
     QSimulationTile* current_tile = (QSimulationTile*)this->m_last_cursor_item;
@@ -82,7 +90,6 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
             painter.drawPixmap(0, 0, cursor_pixmap);
             new_item->setPixmap(new_pixmap);
-
 
             /* Remeber tile that has the cursor */
             this->m_last_cursor_item = object_clicked;

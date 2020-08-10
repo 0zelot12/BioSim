@@ -8,8 +8,8 @@
 #include <QGraphicsPathItem>
 
 #include "QSimulationTile.hpp"
-#include "world.hpp"
 #include "creature.hpp"
+#include "bio_sim_model.hpp"
 
 /**
 *************************************************************************
@@ -21,14 +21,15 @@ class QSimulationScene : public QGraphicsScene
 {
 public:
     /* Add new creature to simualtion */
-    bool add_new_creature(creature* new_creature);
+    bool add_new_creature   (creature* new_creature);
     /* Draw all creatures on a given tile */
-    void draw_creatures(bool is_cursor);
+    void draw_creatures     (bool is_cursor);
 protected:
     void mousePressEvent    (QGraphicsSceneMouseEvent* mouseEvent) override;
     void mouseMoveEvent     (QGraphicsSceneMouseEvent* mouseEvent) override;
     void mouseReleaseEvent  (QGraphicsSceneMouseEvent* mouseEvent) override;
 private:
+    bio_sim_model* m_model              = nullptr;
     /* Last tile that was selected with the cursor */
-    QGraphicsItem* m_last_cursor_item = nullptr;
+    QGraphicsItem* m_last_cursor_item   = nullptr;
 };

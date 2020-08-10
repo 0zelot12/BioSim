@@ -1,30 +1,42 @@
 #include "image.hpp"
 
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: invalid_image_format
+//
+//
+/////////////////////////////////////////////////////////////
+
 const char* invalid_image_format::what() const noexcept
 {
 	return "image data has invalid format";
 }
+
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: corrupted_image_data
+//
+//
+/////////////////////////////////////////////////////////////
 
 const char* corrupted_image_data::what() const noexcept
 {
 	return "image data is corrupted";
 }
 
-const std::string image::OUTPUT_FILE_NAME_ = "output.tga";
-
-std::vector<std::shared_ptr<image>> image::load_images(const std::string& directory_path)
-{
-	std::vector<std::shared_ptr<image>> images;
-
-	for (auto& entry : std::filesystem::directory_iterator(directory_path))
-		images.push_back(std::make_shared<image>(entry.path().string()));
-
-	return images;
-}
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: image
+//
+//
+/////////////////////////////////////////////////////////////
 
 image::image(const std::string& image_path)
 {
-	load_image(image_path, this->pixel_data_, this->header_);
+	load_image(image_path, this->m_pixel_data, this->m_header);
 }
 
 image::~image()
@@ -97,35 +109,35 @@ void image::save_image_fs(const std::string& path, image& image)
 	{
 		/* Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
 	   to be able to write bytewise */
-		char header_bytewise[HEADER_SIZE_BYTES_] = {						(char)image.header_.id_length,
-																			(char)image.header_.colour_map_type,
-																			(char)image.header_.image_type,
-																			(char)(image.header_.first_entry % 256),
-																			(char)(image.header_.first_entry / 256),
-																			(char)(image.header_.num_entries % 256),
-																			(char)(image.header_.num_entries / 256),
-																			(char)image.header_.bits_per_entry,
-																			(char)(image.header_.x_origin % 256),
-																			(char)(image.header_.x_origin / 256),
-																			(char)(image.header_.y_origin % 256),
-																			(char)(image.header_.y_origin / 256),
-																			(char)(image.header_.width % 256),
-																			(char)(image.header_.width / 256),
-																			(char)(image.header_.height % 256),
-																			(char)(image.header_.height / 256),
-																			(char)image.header_.bits_per_pixel, 
-																			(char)image.header_.descriptor
+		char header_bytewise[HEADER_SIZE_BYTES_] = {						(char)image.m_header.id_length,
+																			(char)image.m_header.colour_map_type,
+																			(char)image.m_header.image_type,
+																			(char)(image.m_header.first_entry % 256),
+																			(char)(image.m_header.first_entry / 256),
+																			(char)(image.m_header.num_entries % 256),
+																			(char)(image.m_header.num_entries / 256),
+																			(char)image.m_header.bits_per_entry,
+																			(char)(image.m_header.x_origin % 256),
+																			(char)(image.m_header.x_origin / 256),
+																			(char)(image.m_header.y_origin % 256),
+																			(char)(image.m_header.y_origin / 256),
+																			(char)(image.m_header.width % 256),
+																			(char)(image.m_header.width / 256),
+																			(char)(image.m_header.height % 256),
+																			(char)(image.m_header.height / 256),
+																			(char)image.m_header.bits_per_pixel, 
+																			(char)image.m_header.descriptor
 		};
 
 		/* Write header to file */
 		for (auto& byte : header_bytewise)	
 			ofs << byte;
 
-		for (size_t i = 0; i < (size_t)image.header_.width * (size_t)image.header_.height; i++)
+		for (size_t i = 0; i < (size_t)image.m_header.width * (size_t)image.m_header.height; i++)
 		{
 			for (size_t b = 0; b < 4; b++)
 			{
-				ofs << image.pixel_data_[(i * BITS_PER_CHANNEL_) + (b % BITS_PER_CHANNEL_)];
+				ofs << image.m_pixel_data[(i * BITS_PER_CHANNEL_) + (b % BITS_PER_CHANNEL_)];
 			}
 		}
 	}
@@ -145,33 +157,33 @@ void image::save_image(const std::string& path, image& image)
 
 	/* Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
 	   to be able to write bytewise */
-	char header_bytewise[HEADER_SIZE_BYTES_] = {    (char)image.header_.id_length,
-													(char)image.header_.colour_map_type,
-													(char)image.header_.image_type,
-													(char)(image.header_.first_entry % 256),
-													(char)(image.header_.first_entry / 256),
-													(char)(image.header_.num_entries % 256),
-													(char)(image.header_.num_entries / 256),
-													(char)image.header_.bits_per_entry,
-													(char)(image.header_.x_origin % 256),
-													(char)(image.header_.x_origin / 256),
-													(char)(image.header_.y_origin % 256),
-													(char)(image.header_.y_origin / 256),
-													(char)(image.header_.width % 256),
-													(char)(image.header_.width / 256),
-													(char)(image.header_.height % 256),
-													(char)(image.header_.height / 256),
-													(char)image.header_.bits_per_pixel,
-													(char)image.header_.descriptor
+	char header_bytewise[HEADER_SIZE_BYTES_] = {    (char)image.m_header.id_length,
+													(char)image.m_header.colour_map_type,
+													(char)image.m_header.image_type,
+													(char)(image.m_header.first_entry % 256),
+													(char)(image.m_header.first_entry / 256),
+													(char)(image.m_header.num_entries % 256),
+													(char)(image.m_header.num_entries / 256),
+													(char)image.m_header.bits_per_entry,
+													(char)(image.m_header.x_origin % 256),
+													(char)(image.m_header.x_origin / 256),
+													(char)(image.m_header.y_origin % 256),
+													(char)(image.m_header.y_origin / 256),
+													(char)(image.m_header.width % 256),
+													(char)(image.m_header.width / 256),
+													(char)(image.m_header.height % 256),
+													(char)(image.m_header.height / 256),
+													(char)image.m_header.bits_per_pixel,
+													(char)image.m_header.descriptor
 	};
 
 	fwrite(header_bytewise, sizeof(header_bytewise), 1, fp);
 
-	for (size_t  i = 0; i < (size_t)image.header_.width * (size_t)image.header_.height; i++)
+	for (size_t  i = 0; i < (size_t)image.m_header.width * (size_t)image.m_header.height; i++)
 	{
 		for (size_t b = 0; b < 4; b++)
 		{
-			fputc(image.pixel_data_[(i * BITS_PER_CHANNEL_) + (b % BITS_PER_CHANNEL_)], fp);
+			fputc(image.m_pixel_data[(i * BITS_PER_CHANNEL_) + (b % BITS_PER_CHANNEL_)], fp);
 		}
 	}
 
@@ -203,3 +215,15 @@ void image::check_image_format( const char&		id_length,
 		throw invalid_image_format();
 	}
 }
+
+std::vector<std::shared_ptr<image>> image::load_images(const std::string& directory_path)
+{
+	std::vector<std::shared_ptr<image>> images;
+
+	for (auto& entry : std::filesystem::directory_iterator(directory_path))
+		images.push_back(std::make_shared<image>(entry.path().string()));
+
+	return images;
+}
+
+const std::string image::OUTPUT_FILE_NAME_ = "output.tga";

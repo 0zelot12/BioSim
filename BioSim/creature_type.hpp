@@ -21,11 +21,15 @@
 class creature_type
 {
 private:
-	std::string		name_, eigenschaften_, bild_pfad_;
-	unsigned int	staerke_, geschwindigkeit_, lebensdauer_;
+	std::string		m_name, 
+					m_properties, 
+					m_image_path;
+	unsigned int	m_strength, 
+					m_speed, 
+					m_life_span;
 
 	/* Vector containing the converted content of eigentschaften_  */
-	std::vector<properties> eigenschaften_list_;
+	std::vector<properties> m_properties_list;
 
 	/* Writes number of successful/unsucessful read lines on the console */
 	static void print_stats(int lines_read, int lines_read_with_error);
@@ -37,15 +41,17 @@ public:
 	creature_type(const std::string& name, unsigned int staerke, unsigned int geschwindigkeit,
 		unsigned int lebensdauer, const std::string& eigenschaften, const std::string& bild_pfad);
 
-	std::string name() const;
-	std::string bild_pfad() const;
-	unsigned int staerke() const;
-	unsigned int geschwindigkeit() const;
-	unsigned int lebensdauer() const;
-	std::vector<properties> eigenschaften_list() const;
+	std::string				name()					const;
+	std::string				bild_pfad()				const;
+	unsigned int			staerke()				const;
+	unsigned int			geschwindigkeit()		const;
+	unsigned int			lebensdauer()			const;
+	std::vector<properties> eigenschaften_list()	const;
 
 
-	~creature_type() = default;
-	creature_type(const creature_type&) = default;
-	creature_type& operator=(const creature_type&) = default;
+	~creature_type			()						= default;
+	creature_type			(const creature_type&)	= default;
+	creature_type& operator=(const creature_type&)	= default;
+
+	 /* Needed? */
 };

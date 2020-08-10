@@ -43,7 +43,7 @@ class corrupted_image_data : public std::exception
 
 /**
 *************************************************************************
-* @sturct TGA_HEADER
+* @struct TGA_HEADER
 *
 * Defines datatype for an image in TGA format
 * The header consists of 18 bytes (char = 1 byte; short = 2 bytes)
@@ -68,15 +68,22 @@ struct TGA_HEADER
 	char			descriptor;
 };
 
+/**
+*************************************************************************
+* @class image
+*
+* Defines datatype for an image in TGA format
+* The header consists of 18 bytes (char = 1 byte; short = 2 bytes)
+*************************************************************************/
 class image
 {
 private:
 
 	/* Contains metainfo of the image */
-	TGA_HEADER header_;
+	TGA_HEADER m_header;
 
-	/* Holds the image data */
-	std::vector<char> pixel_data_;
+	/* Holds the image data -NOT NEEDED -> pointer->getdata()- */
+	std::vector<char> m_pixel_data;
 
 	/* Checks whether the format is supported, throws invalid_image_format in the latter case */
 	static void check_image_format(	const char& id_length, 
@@ -93,31 +100,38 @@ private:
 	static void load_image(const std::string& path, std::vector<char>& pixel_data, TGA_HEADER& header);
 
 	/* Filename for saved image (only for debugging) */
-	static const std::string OUTPUT_FILE_NAME_;
-	static const int BITS_PER_CHANNEL_ = 4;
-	static const int HEADER_SIZE_BYTES_ = 18;
+	static const std::string	OUTPUT_FILE_NAME_;
+	static const int			BITS_PER_CHANNEL_	= 4;
+	static const int			HEADER_SIZE_BYTES_	= 18;
 	
 public:
 
 	/* Saves image object to the specified path */
-	static void save_image(const std::string& path, image& image);
+	static void save_image		(const std::string& path, image& image);
 
 	/* Saves image object to the specified path using ofilstream*/
-	static void save_image_fs(const std::string& path, image& image);
+	static void save_image_fs	(const std::string& path, image& image);
 
 	/* Expose data without possibility of changing */
-	const std::vector<char>& pixel_data() const { return pixel_data_; }
+	const std::vector<char>& pixel_data() const { return m_pixel_data; }
 
 	/* Loads all image files from the specified directory */
 	static std::vector<std::shared_ptr<image>> load_images(const std::string& directory_path);
 
-	const char width() { return header_.width; };
-	const char height() { return header_.width; };
+	const char width	()	{ return m_header.width; };
+	const char height	()	{ return m_header.width; };
 
 	image(const std::string& image_path);	
 	~image();
 }; 
 
+
+/**
+*************************************************************************
+* @struct TERRAIN_IMAGE
+*
+* Custom datatype for handling terrain images in Qt datatype
+*************************************************************************/
 struct TERRAIN_IMAGE
 {
 	std::shared_ptr<image>  tga_image;
@@ -126,6 +140,12 @@ struct TERRAIN_IMAGE
 	QPixmap                 q_pixmap;
 };
 
+/**
+*************************************************************************
+* @struct CREATURE_IMAGE
+*
+* Custom datatype for handling creature images in Qt datatype
+*************************************************************************/
 struct CREATURE_IMAGE
 {
 	std::shared_ptr<image>  tga_image;

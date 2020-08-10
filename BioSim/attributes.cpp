@@ -38,7 +38,7 @@ bool attributes::check_attributes(const std::vector<std::string>& attributes)
 {
 	try
 	{
-		if (attributes.size() > ATTR_COUNT_)
+		if (attributes.size() > ATTRIBUTE_COUNT)
 		{
 			std::cout << "-> [ERROR]: " << "Too many Attributes found" << std::endl;
 			return false;

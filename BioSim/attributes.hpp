@@ -63,5 +63,5 @@ private:
 	static void convert_to_upper			(	   std::string& input	);
 
 	/* Count of expected attributes in row */
-	static const unsigned int ATTR_COUNT_ = 6;
+	static const unsigned int ATTRIBUTE_COUNT = 6;
 };

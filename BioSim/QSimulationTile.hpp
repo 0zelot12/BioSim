@@ -23,7 +23,12 @@ public:
     /* Image data currently shown */
     QPixmap                 m_current_image_data;
 
+    /* Pointer to last simulation tile in a path of the A*-algorithm */
     QSimulationTile* m_last_tile = nullptr;
-    int g_distance = 0, f_distance = 0, h_value = 0;
+
+    /* Distances needed for A*-algorithm */
+    int g_distance  = 0, 
+        f_distance  = 0, 
+        h_value     = 0;
 
 };
