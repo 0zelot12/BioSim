@@ -4,7 +4,6 @@
 #include <QGraphicsPixmapItem>
 #include <QPainter>
 
-#include "image.hpp"
 #include "creature.hpp"
 
 class QSimulationTile : public QGraphicsPixmapItem
@@ -13,22 +12,21 @@ class QSimulationTile : public QGraphicsPixmapItem
 
 public:
     /* Terrain type of the tile */
-    int                     m_terrain_type_idx;
+    unsigned int            m_terrain_type_idx;
     /* Tile map index */    
     int                     m_tile_map_idx;
     /* All creatures on this tile */
     std::vector<creature*>  m_creatures_on_tile;
-    /* Unmodified terrain data */
+    /* Pointer to Unmodified terrain data */
     QPixmap*                m_terrain_image;            
     /* Image data currently shown */
     QPixmap                 m_current_image_data;
 
     /* Pointer to last simulation tile in a path of the A*-algorithm */
-    QSimulationTile* m_last_tile = nullptr;
+    QSimulationTile*        m_predecessor = nullptr;
 
     /* Distances needed for A*-algorithm */
-    int g_distance  = 0, 
-        f_distance  = 0, 
-        h_value     = 0;
-
+    int                     m_g_distance  = 0, 
+                            m_f_distance  = 0, 
+                            m_h_distance  = 0;
 };

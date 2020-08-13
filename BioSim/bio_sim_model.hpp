@@ -3,7 +3,6 @@
 #include "creature_type.hpp"
 #include "image.hpp"
 #include "world.hpp"
-#include "a_star.hpp"
 #include "QSimulationTile.hpp"
 
 #include <iostream>
@@ -32,7 +31,7 @@ public:
 	/* World object containing terrain data */
 	world										m_world;
 
-	std::vector<QSimulationTile> test_pathfinding();
+	//std::vector<QSimulationTile> test_pathfinding();
 
 	/* y dimension of the world in tiles */
 	const static int WORLD_HEIGHT_TILES	= 128;

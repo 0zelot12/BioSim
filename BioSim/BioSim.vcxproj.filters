@@ -34,12 +34,6 @@
     <Filter Include="Source Files\widgets">
       <UniqueIdentifier>{c8562ccf-98e2-42c0-96d3-32fcc6a0b235}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\util">
-      <UniqueIdentifier>{b1e33cef-2c12-40e0-aa76-cce529195576}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\util">
-      <UniqueIdentifier>{9551d98a-d85e-4507-8c31-ae45dcda6669}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="bio_sim_gui.qrc">
@@ -92,9 +86,6 @@
     <ClCompile Include="QSimulationScene.cpp">
       <Filter>Source Files\widgets</Filter>
     </ClCompile>
-    <ClCompile Include="a_star.cpp">
-      <Filter>Source Files\util</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attributes.hpp">
@@ -129,9 +120,6 @@
     </ClInclude>
     <ClInclude Include="QSimulationTile.hpp">
       <Filter>Header Files\widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="a_star.hpp">
-      <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

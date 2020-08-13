@@ -96,40 +96,32 @@ m_tga_terrain_images(image::load_images(".\\graphics\\environment\\terrain"))
 
     /* Configure QGraphicsView */
     m_ui.simulation_area->setAlignment           (Qt::AlignLeft | Qt::AlignTop);
-    m_ui.simulation_area->setCacheMode           (QGraphicsView::CacheBackground);
-    m_ui.simulation_area->setViewportUpdateMode  (QGraphicsView::SmartViewportUpdate);
+    //m_ui.simulation_area->setCacheMode           (QGraphicsView::CacheBackground);
+    //m_ui.simulation_area->setViewportUpdateMode  (QGraphicsView::SmartViewportUpdate);
     m_ui.simulation_area->setInteractive         (true);
 
     /* Configure QGraphicsScene */
-    m_simulation_scene.setItemIndexMethod        (QGraphicsScene::NoIndex);
-   /// m_simulation_scene.m_world = &this->m_presenter.model.m_world;
+    //m_simulation_scene.setItemIndexMethod        (QGraphicsScene::NoIndex);
+    m_simulation_scene.m_model = &this->m_presenter.model;
 
     /* Fill scene with pixelmaps */
     for (uint32_t i = 0; i < m_presenter.model.WORLD_HEIGHT_TILES; i++)
     {
         for (uint32_t j = 0; j < m_presenter.model.WORLD_WIDTH_TILES; j++)
         {
-            int idx = world::terrain_type_to_int(m_presenter.model.m_world.terrain_map[world::coordinate_to_index(i, j, m_presenter.model.WORLD_HEIGHT_TILES)]);
-            QSimulationTile* pixmap_item = new QSimulationTile(m_terrain_images[idx]->q_pixmap);
-            pixmap_item->m_terrain_type_idx = idx;
-            pixmap_item->m_tile_map_idx = world::coordinate_to_index(i, j, m_presenter.model.WORLD_HEIGHT_TILES);
-            pixmap_item->m_terrain_image = &m_terrain_images[idx]->q_pixmap;
-            pixmap_item->m_current_image_data = m_terrain_images[idx]->q_pixmap;
-            m_presenter.model.m_world.tile_map.push_back(pixmap_item);
+            int idx = world::terrain_type_to_int(m_presenter.model.m_world.m_terrain_map[world::coordinate_to_index(i, j, m_presenter.model.WORLD_HEIGHT_TILES)]);
+            QSimulationTile* pixmap_item        = new QSimulationTile(m_terrain_images[idx]->q_pixmap);
+            pixmap_item->m_terrain_type_idx     = idx;
+            pixmap_item->m_terrain_image        = &m_terrain_images[idx]->q_pixmap;
+            pixmap_item->m_current_image_data   = m_terrain_images[idx]->q_pixmap;
+            m_presenter.model.m_world.m_tile_map.push_back(pixmap_item);
+            pixmap_item->m_tile_map_idx = m_presenter.model.m_world.m_tile_map.size() - 1;
             m_simulation_scene.addItem(pixmap_item);
             pixmap_item->setPos(m_terrain_images[0]->tga_image->height()*j,
                                 m_terrain_images[0]->tga_image->width() *i
             );
         }
     }
-
-    // Add the vertical lines first, paint them red
-    for (int x = 0; x <= m_presenter.model.WORLD_WIDTH_TILES * 32; x += 32)
-        m_simulation_scene.addLine(x, 0, x, m_presenter.model.WORLD_WIDTH_TILES * 32, QPen(Qt::black));
-
-    // Now add the horizontal lines, paint them green
-    for (int y = 0; y <= m_presenter.model.WORLD_HEIGHT_TILES * 32; y += 32)
-        m_simulation_scene.addLine(0, y, m_presenter.model.WORLD_HEIGHT_TILES * 32, y, QPen(Qt::black));
 
     // Show scene
     m_ui.simulation_area->setScene(&m_simulation_scene);
@@ -146,8 +138,6 @@ catch (const std::exception& e)
 
 void bio_sim_gui::on_ctrl_start_btn_clicked()
 {
-
-    auto test = this->m_presenter.model.test_pathfinding();
     QMessageBox msg_box;
     msg_box.setText("Start button clicked");
     msg_box.exec();
@@ -196,7 +186,7 @@ void bio_sim_gui::on_place_creature_btn_clicked()
     }
 
     /* Put instance to into the model */
-    this->m_presenter.model.m_world.creature_map.push_back(std::make_shared<creature>(*new_creature));
+    this->m_presenter.model.m_world.m_creature_map.push_back(std::make_shared<creature>(*new_creature));
 }
 
 void bio_sim_gui::on_creature_choice_box_currentIndexChanged(int index)
