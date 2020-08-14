@@ -19,8 +19,8 @@ bool QSimulationScene::add_new_creature(creature* new_creature)
 
     new_creature->m_current_position = current_tile->m_tile_map_idx;
 
-    /* Check if creature type and terrain type match */
-    if (new_creature->m_is_land_creature)
+    // Check if creature type and terrain type match
+    if (new_creature->terrain_type() == PROPERTIES::LANDBEWOHNER)
     {
         if (current_tile->m_terrain_type_idx == 0 || current_tile->m_terrain_type_idx == 4)
         {
@@ -36,11 +36,11 @@ bool QSimulationScene::add_new_creature(creature* new_creature)
     }
 
     current_tile->m_creatures_on_tile.push_back(new_creature);
-    this->draw_creatures(true);
+    this->redraw_items_on_last_tile(true);
     return true;
 }
 
-void QSimulationScene::draw_creatures(bool is_cursor)
+void QSimulationScene::redraw_items_on_last_tile(bool is_cursor)
 {
     QSimulationTile* current_tile = (QSimulationTile*)this->m_last_cursor_item;
 
@@ -61,6 +61,25 @@ void QSimulationScene::draw_creatures(bool is_cursor)
     current_tile->setPixmap(tile_with_creature);
 }
 
+void QSimulationScene::draw_creatures(QSimulationTile* tile, bool is_cursor)
+{
+    auto pixmap = tile->pixmap();
+    QPainter creature_painter(&pixmap);
+
+    for (int i = 0; i < tile->m_creatures_on_tile.size(); i++)
+    {
+        creature_painter.drawPixmap(0, 0, *(tile->m_creatures_on_tile[i]->m_creature_image));
+    }
+
+    if (is_cursor)
+    {
+        QPixmap cursor_pixmap(".\\graphics\\environment\\cursor\\cursor.tga");
+        creature_painter.drawPixmap(0, 0, cursor_pixmap);
+    }
+
+    tile->setPixmap(pixmap);
+}
+
 void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
     if (mouseEvent->button() == Qt::LeftButton)
@@ -76,7 +95,7 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
             QSimulationTile* unclicked_tile     = (QSimulationTile*)this->m_last_cursor_item;
 
             if(!m_last_path_tiles.empty())
-                clear_path_tiles(this->m_last_path_tiles);
+                reset_tiles(this->m_last_path_tiles);
 
             QPixmap new_pixmap = clicked_tile->pixmap();
             QPixmap cursor_pixmap(".\\graphics\\environment\\cursor\\cursor.tga");
@@ -84,7 +103,7 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
             if (unclicked_tile)
             {
                 unclicked_tile->setPixmap(unclicked_tile->m_current_image_data); //???
-                this->draw_creatures(false);
+                this->redraw_items_on_last_tile(false);
             }
 
             QPainter painter(&new_pixmap);
@@ -107,20 +126,21 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
             QSimulationTile* clicked_tile = (QSimulationTile*)object_clicked;
             QSimulationTile* unclicked_tile = (QSimulationTile*)this->m_last_cursor_item;
 
+            if (!unclicked_tile)
+                return;
+
             QPixmap new_pixmap = clicked_tile->pixmap();
-            QPixmap old_pixmap = *unclicked_tile->m_terrain_image;
+            QPixmap old_pixmap = unclicked_tile->pixmap();
 
             QPixmap cursor_pixmap   (".\\graphics\\environment\\cursor\\cursor.tga");
             QPixmap path_pixmap     (".\\graphics\\environment\\path\\path.tga");
 
             if (unclicked_tile)
             {
-                //unclicked_tile->setPixmap(unclicked_tile->m_current_image_data);
-                //this->draw_creatures(false);
 
-                clear_path_tiles(this->m_last_path_tiles);
+                reset_tiles(this->m_last_path_tiles);
 
-                auto path_tiles = this->m_model->m_world.path_to_target(clicked_tile, unclicked_tile);
+                auto path_tiles = this->m_model->m_world.path_to_target(unclicked_tile, clicked_tile);
 
                 if (!path_tiles.empty())
                 {
@@ -140,6 +160,7 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
                     QMessageBox msg_box;
                     msg_box.setText("No path available!");
                     msg_box.exec();
+                    redraw_items_on_last_tile(false);
                     this->m_last_cursor_item = nullptr;
                     return;
                 }
@@ -149,11 +170,7 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
             cursor_painter.drawPixmap(0, 0, cursor_pixmap);
             unclicked_tile->setPixmap(old_pixmap);
-
-            ///* Remeber tile that has the cursor */
-            //this->m_last_cursor_item = object_clicked;
         }
-
     }
 }
 
@@ -177,7 +194,7 @@ void QSimulationScene::repaint_map()
     }
 }
 
-void QSimulationScene::clear_path_tiles(std::vector<QSimulationTile*> last_path_tiles)
+void QSimulationScene::reset_tiles(std::vector<QSimulationTile*> last_path_tiles)
 {
     for (auto tile : last_path_tiles)
     {
@@ -185,5 +202,6 @@ void QSimulationScene::clear_path_tiles(std::vector<QSimulationTile*> last_path_
         QPainter path_painter(&pixmap);
         path_painter.drawPixmap(0, 0, *tile->m_terrain_image);
         tile->setPixmap(pixmap);
+        draw_creatures(tile, false);
     }
 }

@@ -8,22 +8,22 @@
 //
 /////////////////////////////////////////////////////////////
 
-const std::map<std::string, properties> string_to_property = {
-	{"WASSERBEWOHNER", properties::WASSERBEWOHNER},
-	{"LANDBEWOHNER", properties::LANDBEWOHNER},
-	{"PFLANZE", properties::PFLANZE},
-	{"PFLANZENFRESSER", properties::PFLANZENFRESSER},
-	{"TIER", properties::TIER},
-	{"FLEISCHFRESSER", properties::FLEISCHFRESSER}
+const std::map<std::string, PROPERTIES> string_to_property = {
+	{"WASSERBEWOHNER", PROPERTIES::WASSERBEWOHNER},
+	{"LANDBEWOHNER", PROPERTIES::LANDBEWOHNER},
+	{"PFLANZE", PROPERTIES::PFLANZE},
+	{"PFLANZENFRESSER", PROPERTIES::PFLANZENFRESSER},
+	{"TIER", PROPERTIES::TIER},
+	{"FLEISCHFRESSER", PROPERTIES::FLEISCHFRESSER}
 };
 
-const std::map<properties, std::string> property_to_string = {
-	{properties::WASSERBEWOHNER, "WASSERBEWOHNER"},
-	{properties::LANDBEWOHNER, "LANDBEWOHNER"},
-	{properties::PFLANZE, "PFLANZE"},
-	{ properties::PFLANZENFRESSER, "PFLANZENFRESSER"},
-	{properties::TIER, "TIER"},
-	{properties::FLEISCHFRESSER, "FLEISCHFRESSER"}
+const std::map<PROPERTIES, std::string> property_to_string = {
+	{PROPERTIES::WASSERBEWOHNER, "WASSERBEWOHNER"},
+	{PROPERTIES::LANDBEWOHNER, "LANDBEWOHNER"},
+	{PROPERTIES::PFLANZE, "PFLANZE"},
+	{ PROPERTIES::PFLANZENFRESSER, "PFLANZENFRESSER"},
+	{PROPERTIES::TIER, "TIER"},
+	{PROPERTIES::FLEISCHFRESSER, "FLEISCHFRESSER"}
 };
 
 /////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ bool attributes::check_attributes(const std::vector<std::string>& attributes)
 	return false;
 }
 
-void attributes::set_eigenschaften(const std::string& eigenschaften_string, std::vector<properties>& property_list)
+void attributes::set_eigenschaften(const std::string& eigenschaften_string, std::vector<PROPERTIES>& property_list)
 {
 	try
 	{
@@ -89,7 +89,7 @@ void attributes::set_eigenschaften(const std::string& eigenschaften_string, std:
 			{
 				if (entry.first == str)
 				{
-					properties property = entry.second;
+					PROPERTIES property = entry.second;
 					property_list.push_back(property);
 				}
 			}
@@ -348,7 +348,7 @@ bool attributes::is_valid_int_string(const std::string& str)
 	}
 }
 
-std::string attributes::property_to_str(properties prop)
+std::string attributes::property_to_str(PROPERTIES prop)
 {
 	return property_to_string.find(prop)->second;
 }

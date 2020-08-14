@@ -99,6 +99,7 @@
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="QSimulationScene.cpp" />
     <ClCompile Include="QSimulationTile.cpp" />
+    <ClCompile Include="tile.cpp" />
     <ClCompile Include="world.cpp" />
     <QtRcc Include="bio_sim_gui.qrc" />
     <QtUic Include="bio_sim_gui.ui" />
@@ -124,6 +125,7 @@
     <ClInclude Include="image.hpp" />
     <ClInclude Include="QSimulationScene.hpp" />
     <ClInclude Include="QSimulationTile.hpp" />
+    <ClInclude Include="tile.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

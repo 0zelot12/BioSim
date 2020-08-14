@@ -19,7 +19,7 @@
 *
 * Properties of a creature_type
 *************************************************************************/
-enum class properties
+enum class PROPERTIES
 {
 	PFLANZE, 
 	WASSERBEWOHNER, 
@@ -43,10 +43,10 @@ public:
 	static bool check_attributes		(const std::vector<std::string>& attributes);
 
 	/* Converts a string containing Eigenschaften of a creature_type to a list of properties elements */
-	static void set_eigenschaften		(const std::string& eigenschaften_string, std::vector<properties>& property_list);
+	static void set_eigenschaften		(const std::string& eigenschaften_string, std::vector<PROPERTIES>& property_list);
 
 	/* Gets string representatiopn of a given property */
-	static std::string property_to_str	(properties prop);
+	static std::string property_to_str	(PROPERTIES prop);
 
 private:
 

@@ -22,16 +22,15 @@ class QSimulationScene : public QGraphicsScene
 {
 public:
 
-    bool path_error = false;
-
-    /* Add new creature to simualtion */
+    /* Add new creature to simulation */
     bool add_new_creature   (creature* new_creature);
-    /* Draw all creatures on a given tile */
-    void draw_creatures     (bool is_cursor);
+    /* Draw all creatures on the last active tile */
+    void redraw_items_on_last_tile     (bool is_cursor);
+    /* Draw all creatures on the specified tile */
+    void draw_creatures      (QSimulationTile* tile, bool is_cursor);
 
-
+    /* !!Initialize!! */
     bio_sim_model* m_model = nullptr;
-
 
 protected:
 
@@ -39,13 +38,17 @@ protected:
     void mouseMoveEvent     (QGraphicsSceneMouseEvent* mouseEvent) override;
     void mouseReleaseEvent  (QGraphicsSceneMouseEvent* mouseEvent) override;
 
-    /* Last tile that was selected with the cursor */
-    QGraphicsItem* m_last_cursor_item = nullptr;
-    std::vector<QSimulationTile*> m_last_path_tiles;
+
 
 private:
 
     /* Repaints all tiles on the map with its content */
     void repaint_map();
-    void clear_path_tiles(std::vector<QSimulationTile*> last_path_tiles);
+    /* Resets tiles to its original terrain graphic */
+    void reset_tiles(std::vector<QSimulationTile*> last_path_tiles);
+
+    /* Remember tiles that were used by the last path */
+    std::vector<QSimulationTile*>   m_last_path_tiles;
+    /* Last tile that was selected with the cursor */
+    QGraphicsItem*                  m_last_cursor_item = nullptr;
 };

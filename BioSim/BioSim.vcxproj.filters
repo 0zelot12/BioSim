@@ -86,6 +86,9 @@
     <ClCompile Include="QSimulationScene.cpp">
       <Filter>Source Files\widgets</Filter>
     </ClCompile>
+    <ClCompile Include="tile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="attributes.hpp">
@@ -120,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="QSimulationTile.hpp">
       <Filter>Header Files\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="tile.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -49,7 +49,7 @@ unsigned int creature_type::lebensdauer() const
 	return m_life_span;
 }
 
-std::vector<properties> creature_type::eigenschaften_list() const
+std::vector<PROPERTIES> creature_type::eigenschaften_list() const
 {
 	return m_properties_list;
 }
