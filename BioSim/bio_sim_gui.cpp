@@ -165,11 +165,11 @@ void bio_sim_gui::on_place_creature_btn_clicked()
     int new_creature_index = m_ui.creature_choice_box->currentIndex();
     auto type = this->m_presenter.m_creature_types().at(new_creature_index);
 
-    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->staerke(),
-        type->geschwindigkeit(),
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(),
+        type->speed(),
         m_simulation_scene.get_current_cursor_position(),
         type->name(),
-        type->eigenschaften_list(),
+        type->property_list(),
         &m_creature_images.at(new_creature_index)->q_pixmap);
 
     bool success = this->m_presenter.model.m_world.add_creature(new_creature);
@@ -195,13 +195,13 @@ void bio_sim_gui::fill_creature_selection(int idx)
     m_ui.creature_choice_box->setCurrentIndex(idx);
 
     auto creatures = m_presenter.m_creature_types();
-    m_ui.lifespan_edit->setText  (QString::number(creatures[idx]->lebensdauer    ()));
-    m_ui.strength_edit->setText  (QString::number(creatures[idx]->staerke        ()));
-    m_ui.speed_edit->   setText  (QString::number(creatures[idx]->geschwindigkeit()));
+    m_ui.lifespan_edit->setText  (QString::number(creatures[idx]->life_span    ()));
+    m_ui.strength_edit->setText  (QString::number(creatures[idx]->strength        ()));
+    m_ui.speed_edit->   setText  (QString::number(creatures[idx]->speed()));
 
     // A creature_type can have multiple properties seperated by whitespaces 
     QString properties_str = "";
-    for (auto m_property : creatures[idx]->eigenschaften_list())
+    for (auto m_property : creatures[idx]->property_list())
     {
         properties_str += QString::fromStdString(attributes::property_to_str(m_property)) + " ";
     }

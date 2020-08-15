@@ -46,9 +46,8 @@ public:
 	/* Distances needed for A*-algorithm */
 	float m_g_distance = 0, m_f_distance = 0, m_h_distance = 0;
 
+	// Position on map in 2D coordinates
 	POINT_2D m_pos;
-
-private:
 
 };
 

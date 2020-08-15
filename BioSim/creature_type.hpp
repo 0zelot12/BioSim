@@ -21,36 +21,30 @@
 
 class creature_type
 {
+
+public:
+
+	// Loads types from a comma-seperated list of values and create vector of shared pointer to use them further on 
+	static std::vector<std::shared_ptr<creature_type>> load(const std::string& path);
+
+	creature_type(const std::string& name, unsigned int strength, unsigned int speed,
+		unsigned int life_span, const std::string& properties, const std::string& image_path);
+
+	std::string	name() const;
+	std::string	image_path()	const;
+	unsigned int strength() const;
+	unsigned int speed() const;
+	unsigned int life_span() const;
+	std::vector<PROPERTIES> property_list() const;
+
 private:
-	std::string		m_name, 
-					m_properties, 
-					m_image_path;
-	unsigned int	m_strength, 
-					m_speed, 
-					m_life_span;
+
+	std::string m_name, m_properties, m_image_path;
+	unsigned int m_strength, m_speed, m_life_span;
 
 	// Vector containing the converted content of eigentschaften
 	std::vector<PROPERTIES> m_properties_list;
 
 	// Writes number of successful/unsucessful read lines on the console 
 	static void print_stats(int lines_read, int lines_read_with_error);
-
-public:
-	// Loads types from a comma-seperated list of values and create vector of shared pointer to use them further on 
-	static std::vector<std::shared_ptr<creature_type>> load(const std::string& path);
-
-	creature_type(const std::string& name, unsigned int staerke, unsigned int geschwindigkeit,
-		unsigned int lebensdauer, const std::string& eigenschaften, const std::string& bild_pfad);
-
-	std::string				name()					const;
-	std::string				bild_pfad()				const;
-	unsigned int			staerke()				const;
-	unsigned int			geschwindigkeit()		const;
-	unsigned int			lebensdauer()			const;
-	std::vector<PROPERTIES> eigenschaften_list()	const;
-
-
-	~creature_type			()						= default;
-	creature_type			(const creature_type&)	= default;
-	creature_type& operator=(const creature_type&)	= default;
 };

@@ -171,6 +171,29 @@ bool world::add_creature(std::shared_ptr<creature> new_creature)
     return true;
 }
 
+bool world::add_creature(const creature_type& type, int position)
+{
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type.strength(), type.speed(), position,type.name(), type.property_list(), nullptr);
+
+    //PROPERTIES type = new_creature->terrain_type();
+    //TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
+
+    //if (type == PROPERTIES::LANDBEWOHNER && (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
+    //{
+    //    return false;
+    //}
+
+    //else if (type == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
+    //{
+    //    return false;
+    //}
+
+    m_creature_map.push_back(new_creature);
+    m_tile_map[new_creature->m_current_position].m_creatures_on_tile.push_back(new_creature);
+
+    return true;
+}
+
 //std::vector<QSimulationTile*> world::path_to_target(const creature* creature, QSimulationTile* target_tile)
 //{
 //    std::vector <QSimulationTile*> path;

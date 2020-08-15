@@ -58,6 +58,9 @@ public:
 	// Adds creature to the simulation, returns true in case of success
 	bool add_creature(std::shared_ptr<creature> new_creature);
 
+	// Adds creature to the simulation, returns true in case of success
+	bool add_creature(const creature_type& type, int position);
+
 private:
 
 	// Expands given node to check its adjacent tiles 

@@ -11,7 +11,6 @@
 
 #include "ui_bio_sim_gui.h"
 #include "QSimulationScene.hpp"
-#include "QSimulationTile.hpp"
 #include "bio_sim_presenter.hpp"
 #include "image.hpp"
 #include "creature.hpp"
@@ -34,9 +33,6 @@ public:
     // Terrain images in TGA format 
     std::vector<std::shared_ptr<image>> m_tga_terrain_images;
 
-    // Terrain images in custom format 
-    std::vector<std::shared_ptr<TERRAIN_IMAGE>> m_terrain_images;
-
     // Creature images in TGA format 
     std::vector<std::shared_ptr<image>> m_tga_creature_images;
 
@@ -50,6 +46,7 @@ public:
     std::map<std::string, std::shared_ptr<QPixmap>> m_creature_type_to_pixmap;
 
 public slots:
+
     void on_ctrl_start_btn_clicked();
     void on_ctrl_stop_btn_clicked();
     void on_ctrl_step_btn_clicked();
@@ -58,7 +55,7 @@ public slots:
 
 private:
 
-    // Qt GUI class */
+    // Qt GUI class 
     Ui::bio_sim_guiClass m_ui;
 
     // Presenter get data from the model and passes it to the GUI 

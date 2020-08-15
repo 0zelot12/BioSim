@@ -80,9 +80,6 @@
     <ClCompile Include="creature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QSimulationTile.cpp">
-      <Filter>Source Files\widgets</Filter>
-    </ClCompile>
     <ClCompile Include="QSimulationScene.cpp">
       <Filter>Source Files\widgets</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QSimulationScene.hpp">
-      <Filter>Header Files\widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="QSimulationTile.hpp">
       <Filter>Header Files\widgets</Filter>
     </ClInclude>
     <ClInclude Include="tile.hpp">

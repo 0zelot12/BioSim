@@ -29,27 +29,27 @@ std::string creature_type::name() const
 	return m_name;
 }
 
-std::string creature_type::bild_pfad() const
+std::string creature_type::image_path() const
 {
 	return m_image_path;
 }
 
-unsigned int creature_type::staerke() const
+unsigned int creature_type::strength() const
 {
 	return m_strength;
 }
 
-unsigned int creature_type::geschwindigkeit() const
+unsigned int creature_type::speed() const
 {
 	return m_speed;
 }
 
-unsigned int creature_type::lebensdauer() const
+unsigned int creature_type::life_span() const
 {
 	return m_life_span;
 }
 
-std::vector<PROPERTIES> creature_type::eigenschaften_list() const
+std::vector<PROPERTIES> creature_type::property_list() const
 {
 	return m_properties_list;
 }

@@ -7,7 +7,6 @@
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsPathItem>
 
-#include "QSimulationTile.hpp"
 #include "creature.hpp"
 #include "bio_sim_model.hpp"
 #include "world.hpp"

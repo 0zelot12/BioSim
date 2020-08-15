@@ -39,33 +39,29 @@ image::image(const std::string& image_path)
 	load_image(image_path, this->m_pixel_data, this->m_header);
 }
 
-image::~image()
-{
-}
-
 void image::load_image(const std::string& path, std::vector<char>& pixel_data, TGA_HEADER& header)
 {
 	std::ifstream ifs(path, std::ios::in | std::ios::binary);
 
 	if (ifs.is_open())
 	{
-		/* read header */
-		ifs.read(				&header.id_length,			sizeof(header.id_length));
-		ifs.read(				&header.colour_map_type,	sizeof(header.colour_map_type));
-		ifs.read(				&header.image_type,			sizeof(header.image_type));
+		// Read header 
+		ifs.read(&header.id_length, sizeof(header.id_length));
+		ifs.read(&header.colour_map_type, sizeof(header.colour_map_type));
+		ifs.read(&header.image_type, sizeof(header.image_type));
 
-		ifs.read((char*)		&header.first_entry,		sizeof(header.first_entry));
-		ifs.read((char*)		&header.num_entries,		sizeof(header.num_entries));
-		ifs.read(				&header.bits_per_entry,		sizeof(header.bits_per_entry));
+		ifs.read((char*) &header.first_entry, sizeof(header.first_entry));
+		ifs.read((char*) &header.num_entries, sizeof(header.num_entries));
+		ifs.read(&header.bits_per_entry, sizeof(header.bits_per_entry));
 
-		ifs.read((char*)		&header.x_origin,			sizeof(header.x_origin));
-		ifs.read((char*)		&header.y_origin,			sizeof(header.y_origin));
-		ifs.read((char*)		&header.width,				sizeof(header.width));
-		ifs.read((char*)		&header.height,				sizeof(header.height));
-		ifs.read(				&header.bits_per_pixel,		sizeof(header.bits_per_pixel));
-		ifs.read(				&header.descriptor,			sizeof(header.descriptor));
+		ifs.read((char*) &header.x_origin, sizeof(header.x_origin));
+		ifs.read((char*) &header.y_origin, sizeof(header.y_origin));
+		ifs.read((char*) &header.width,	sizeof(header.width));
+		ifs.read((char*) &header.height,	sizeof(header.height));
+		ifs.read(&header.bits_per_pixel, sizeof(header.bits_per_pixel));
+		ifs.read(&header.descriptor, sizeof(header.descriptor));
 
-		/* throws exception in case of invalid format */
+		// Throws exception in case of invalid format 
 		check_image_format(header.id_length,
 			header.colour_map_type,
 			header.first_entry,
@@ -76,14 +72,14 @@ void image::load_image(const std::string& path, std::vector<char>& pixel_data, T
 			header.bits_per_pixel
 		);
 
-		/* calculate space needed for the image */
+		// Calculate space needed for the image 
 		int image_data_size = header.width * header.height * (header.bits_per_pixel / 8);
 		pixel_data.resize(image_data_size);
 
-		/* read actual image data */
+		// Read actual image data 
 		ifs.read(pixel_data.data(), image_data_size);
 
-		/* throws exception if image_data_size differs from count of bytes read actually */
+		// Throws exception if image_data_size differs from count of bytes read actually 
 		if (ifs)
 			std::cout << "-> [DEBUG]: Image read" << std::endl;
 		else
@@ -107,29 +103,29 @@ void image::save_image_fs(const std::string& path, image& image)
 
 	if (ofs.is_open())
 	{
-		/* Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
-	   to be able to write bytewise */
-		char header_bytewise[HEADER_SIZE_BYTES_] = {						(char)image.m_header.id_length,
-																			(char)image.m_header.colour_map_type,
-																			(char)image.m_header.image_type,
-																			(char)(image.m_header.first_entry % 256),
-																			(char)(image.m_header.first_entry / 256),
-																			(char)(image.m_header.num_entries % 256),
-																			(char)(image.m_header.num_entries / 256),
-																			(char)image.m_header.bits_per_entry,
-																			(char)(image.m_header.x_origin % 256),
-																			(char)(image.m_header.x_origin / 256),
-																			(char)(image.m_header.y_origin % 256),
-																			(char)(image.m_header.y_origin / 256),
-																			(char)(image.m_header.width % 256),
-																			(char)(image.m_header.width / 256),
-																			(char)(image.m_header.height % 256),
-																			(char)(image.m_header.height / 256),
-																			(char)image.m_header.bits_per_pixel, 
-																			(char)image.m_header.descriptor
+		// Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
+	    //to be able to write bytewise 
+		char header_bytewise[HEADER_SIZE_BYTES_] = {	(char)image.m_header.id_length,
+														(char)image.m_header.colour_map_type,
+														(char)image.m_header.image_type,
+														(char)(image.m_header.first_entry % 256),
+														(char)(image.m_header.first_entry / 256),
+														(char)(image.m_header.num_entries % 256),
+														(char)(image.m_header.num_entries / 256),
+														(char)image.m_header.bits_per_entry,
+														(char)(image.m_header.x_origin % 256),
+														(char)(image.m_header.x_origin / 256),
+														(char)(image.m_header.y_origin % 256),
+														(char)(image.m_header.y_origin / 256),
+														(char)(image.m_header.width % 256),
+														(char)(image.m_header.width / 256),
+														(char)(image.m_header.height % 256),
+														(char)(image.m_header.height / 256),
+														(char)image.m_header.bits_per_pixel, 
+														(char)image.m_header.descriptor
 		};
 
-		/* Write header to file */
+		// Write header to file 
 		for (auto& byte : header_bytewise)	
 			ofs << byte;
 
@@ -155,8 +151,8 @@ void image::save_image(const std::string& path, image& image)
 	if (fp == NULL)
 		throw invalid_file_path();
 
-	/* Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
-	   to be able to write bytewise */
+	// Header consists of bytes and words (= two bytes), so we have to convert the words into two bytes by divide/modulo 256
+	// to be able to write bytewise 
 	char header_bytewise[HEADER_SIZE_BYTES_] = {    (char)image.m_header.id_length,
 													(char)image.m_header.colour_map_type,
 													(char)image.m_header.image_type,
@@ -192,14 +188,14 @@ void image::save_image(const std::string& path, image& image)
 	fclose(fp);
 }
 
-void image::check_image_format( const char&		id_length, 
-								const char&		colour_map_type, 
-								const short&	first_entry, 
-								const short&	num_entries, 
-								const char&		image_type, 
-								const short&	x_origin, 
-								const short&	y_origin, 
-								const char&		bits_per_pixel)
+void image::check_image_format( const char& id_length, 
+								const char& colour_map_type, 
+								const short& first_entry, 
+								const short& num_entries, 
+								const char& image_type, 
+								const short& x_origin, 
+								const short& y_origin, 
+								const char&	bits_per_pixel)
 {
 
 	if (id_length			!= 0x0	||

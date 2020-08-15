@@ -26,6 +26,14 @@ const char* invalid_console_argument::what() const noexcept
 	return "invalid console argument";
 }
 
+/////////////////////////////////////////////////////////////
+//
+//
+//  Class: invalid_file_path
+//
+//
+/////////////////////////////////////////////////////////////
+
 const char* invalid_file_path::what() const noexcept
 {
 	return "specified filepath is invalid";

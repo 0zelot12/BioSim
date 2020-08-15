@@ -20,15 +20,22 @@
 *
 * NOT NEEDED
 *************************************************************************/
+
 class bio_sim_presenter
 {
 public:
+
+	//TODO: Check why default constructor is needed here
 	bio_sim_presenter();
-	/* Exposes the creature types */
+
+	// Exposes the creature types 
 	const std::vector<std::shared_ptr<creature_type>>& m_creature_types();
-	/* Model object containing the simulation table */
+
+	// Model object containing the simulation table 
 	bio_sim_model model;
 	
 private:
+
+	// Path where txt with the creature types is found
 	const static std::string PATH_TO_CREATURE_TABLE;
 };
