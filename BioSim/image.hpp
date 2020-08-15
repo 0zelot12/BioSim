@@ -82,9 +82,6 @@ private:
 	/* Contains metainfo of the image */
 	TGA_HEADER m_header;
 
-	/* Holds the image data -NOT NEEDED -> pointer->getdata()- */
-	std::vector<char> m_pixel_data;
-
 	/* Checks whether the format is supported, throws invalid_image_format in the latter case */
 	static void check_image_format(	const char& id_length, 
 									const char& colour_map_type, 
@@ -105,6 +102,9 @@ private:
 	static const int			HEADER_SIZE_BYTES_	= 18;
 	
 public:
+
+	/* Holds the image data -NOT NEEDED -> pointer->getdata()- */
+	std::vector<char> m_pixel_data;
 
 	/* Saves image object to the specified path */
 	static void save_image		(const std::string& path, image& image);

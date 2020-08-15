@@ -18,18 +18,21 @@
 *
 * Custom class for handling the simulation graphics
 *************************************************************************/
+
 class QSimulationScene : public QGraphicsScene
 {
 public:
 
-    /* Add new creature to simulation */
-    bool add_new_creature   (creature* new_creature);
-    /* Draw all creatures on the last active tile */
-    void redraw_items_on_last_tile     (bool is_cursor);
-    /* Draw all creatures on the specified tile */
-    void draw_creatures      (QSimulationTile* tile, bool is_cursor);
+    // Draw tile with all contents 
+    void draw_tile(int position, bool is_cursor);
 
-    /* !!Initialize!! */
+    // Returns the current index of the cursor
+    int get_current_cursor_position();
+
+    //TODO: In methode auslagern
+    std::map<TERRAIN_TYPE, QPixmap>* m_terrain_type_to_pixmap;
+
+    //TODO: In Konstruktor auslagern
     bio_sim_model* m_model = nullptr;
 
 protected:
@@ -38,17 +41,26 @@ protected:
     void mouseMoveEvent     (QGraphicsSceneMouseEvent* mouseEvent) override;
     void mouseReleaseEvent  (QGraphicsSceneMouseEvent* mouseEvent) override;
 
-
-
 private:
 
-    /* Repaints all tiles on the map with its content */
-    void repaint_map();
-    /* Resets tiles to its original terrain graphic */
-    void reset_tiles(std::vector<QSimulationTile*> last_path_tiles);
+    // Resets tiles to its original terrain graphic 
+    void reset_tiles(std::vector<tile*> tiles_to_redraw);
 
-    /* Remember tiles that were used by the last path */
-    std::vector<QSimulationTile*>   m_last_path_tiles;
-    /* Last tile that was selected with the cursor */
-    QGraphicsItem*                  m_last_cursor_item = nullptr;
+    // Remember tiles that were used by the last path 
+    std::vector<tile*> m_last_path_tiles;
+
+    // Last tile that was selected with the cursor 
+    int m_last_cursor_index = -1;
+
+    // Returns the linear vector index for a point clicked on the GUI
+    int get_tile_map_idx(QPointF point_clicked);
+
+    // Returns original pixmap for the the tile
+    QPixmap get_pixmap(const tile& tile);
+
+    // Sets the given pixmap as image of the specified tile
+    void set_pixmap(QPixmap& pixmap, const tile& tile);
+
+    // Returns pointer to tile at a given index
+    tile* idx_to_tile(int idx);
 };

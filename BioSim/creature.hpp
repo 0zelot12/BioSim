@@ -28,10 +28,17 @@ public:
 
 
 	unsigned int m_strength, m_speed, m_life_span;
+
+	// Current position on the map
 	int m_current_position;
+
 	std::string m_name;
+
 	std::vector<PROPERTIES> m_properties;
+
 	QPixmap* m_creature_image;
+
+	// Pointer to original type
 	std::shared_ptr<creature_type> m_type;
 
 	// Returns wether the creature is a land or water creature

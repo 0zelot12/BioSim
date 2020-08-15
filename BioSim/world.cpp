@@ -10,20 +10,21 @@
 
 struct compare_f_distance
 {
-    inline bool operator() (QSimulationTile* tile_1, QSimulationTile* tile_2)
+    inline bool operator() (tile* tile_1, tile* tile_2)
     {
         return (tile_1->m_f_distance > tile_2->m_f_distance);
     }
 };
 
-float distance(qreal x1, qreal y1, qreal x2, qreal y2)
+float manhatten_distance(POINT_2D pos1, POINT_2D pos2)
 {
-    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
+    return abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y);
 }
 
-void world::get_path(QSimulationTile* tile, std::vector<QSimulationTile*>* tiles)
+void world::get_path(tile* arg, std::vector<tile*>* tiles)
 {
-    auto pre = tile->m_predecessor;
+    tile* pre = arg->m_predecessor;
+
     while (pre)
     {
         tiles->push_back(pre);
@@ -35,13 +36,14 @@ void world::get_path(QSimulationTile* tile, std::vector<QSimulationTile*>* tiles
 
 void world::clear_predecessors()
 {
-    for (auto tile : m_tile_map)
+    for (auto& tile : m_tile_map)
     {
-        tile->m_predecessor = nullptr;
-        tile->m_f_distance = 0;
-        tile->m_g_distance = 0;
-        tile->m_h_distance = 0;
+        tile.m_predecessor = nullptr;
+        tile.m_f_distance = 0;
+        tile.m_g_distance = 0;
+        tile.m_h_distance = 0;
     }
+
 }
 
 TERRAIN_TYPE world::float_to_terrain_type(float input)
@@ -148,6 +150,27 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
     }
 }
 
+bool world::add_creature(std::shared_ptr<creature> new_creature)
+{
+    PROPERTIES type = new_creature->terrain_type();
+    TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
+
+    if (type == PROPERTIES::LANDBEWOHNER && (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
+    {
+        return false;
+    }
+
+    else if (type == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
+    {
+        return false;
+    }
+
+    m_creature_map.push_back(new_creature);
+    m_tile_map[new_creature->m_current_position].m_creatures_on_tile.push_back(new_creature);
+
+    return true;
+}
+
 //std::vector<QSimulationTile*> world::path_to_target(const creature* creature, QSimulationTile* target_tile)
 //{
 //    std::vector <QSimulationTile*> path;
@@ -181,18 +204,18 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
 //
 //}
 
-std::vector<QSimulationTile*> world::path_to_target(QSimulationTile* start_tile, QSimulationTile* target_tile)
+std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
 {
-    std::vector <QSimulationTile*> path;
-    std::vector <QSimulationTile*> open_list;
-    std::list   <QSimulationTile*> closed_list;
+    std::vector<tile*> path;
+    std::vector<tile*> open_list;
+    std::unordered_set<tile*> closed_list;
 
     open_list.push_back(start_tile);
 
     PROPERTIES terrain_type;
 
-    TERRAIN_TYPE start_tile_terrain_type    = int_to_terrain_type(start_tile->m_terrain_type_idx    );
-    TERRAIN_TYPE target_tile_terrain_type   = int_to_terrain_type(target_tile->m_terrain_type_idx   );
+    TERRAIN_TYPE start_tile_terrain_type = start_tile->m_terrain_type;
+    TERRAIN_TYPE target_tile_terrain_type = target_tile->m_terrain_type;
 
     if (start_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || start_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER)
     {
@@ -206,11 +229,13 @@ std::vector<QSimulationTile*> world::path_to_target(QSimulationTile* start_tile,
 
     if (terrain_type == PROPERTIES::LANDBEWOHNER && (target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
     {
+        clear_predecessors();
         return path;
     }
 
     if (terrain_type != PROPERTIES::LANDBEWOHNER && !(target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
     {
+        clear_predecessors();
         return path;
     }
 
@@ -222,31 +247,32 @@ std::vector<QSimulationTile*> world::path_to_target(QSimulationTile* start_tile,
             return path;
         }
 
-        QSimulationTile* current_tile = open_list.back();
+        tile* current_tile = open_list.back();
         open_list.pop_back();
 
         if (current_tile == target_tile)
         {
             get_path(target_tile, &path);
+
+            clear_predecessors();
             return path;
         }
 
-        closed_list.push_front(current_tile);
+        closed_list.insert(current_tile);
 
-        expand_tile(current_tile, target_tile, &open_list, &closed_list, terrain_type);
+        expand_tile(current_tile, target_tile, &open_list, &closed_list, &terrain_type);
 
         // Sort the list by f_values for the next iteration
         std::sort(open_list.begin(), open_list.end(), compare_f_distance());
     }
 
     clear_predecessors();
-
     return path;
 }
 
-std::vector<QSimulationTile*> world::get_adjacent_tiles(QSimulationTile* current_tile)
+std::vector<tile*> world::get_adjacent_tiles(tile* current_tile)
 {
-    std::vector<QSimulationTile*> adjacent_tiles;
+    std::vector<tile*> adjacent_tiles;
 
     // A tile can have a maximum of 8 adjacent tiles
     adjacent_tiles.reserve(8);
@@ -254,15 +280,22 @@ std::vector<QSimulationTile*> world::get_adjacent_tiles(QSimulationTile* current
     int base_idx = current_tile->m_tile_map_idx;
 
     // Get indicees of adjacent tiles
-    int bottom_left     = base_idx - this->m_width - 1,     // down left
-        bottom          = base_idx - this->m_width,         // down
-        bottom_right    = base_idx - this->m_width + 1,     // down right
-        left            = base_idx - 1,                     // left
-        right           = base_idx + 1,                     // right
-        upper_left      = base_idx + this->m_width - 1,     // upper left
-        upper           = base_idx + this->m_width,         // oben
-        upper_right     = base_idx + this->m_width + 1;     // oben rechts
-    
+    int bottom_left     = base_idx - this->m_width - 1,     
+        bottom          = base_idx - this->m_width,         
+        bottom_right    = base_idx - this->m_width + 1,     
+        left            = base_idx - 1,                     
+        right           = base_idx + 1,                     
+        upper_left      = base_idx + this->m_width - 1,     
+        upper           = base_idx + this->m_width,        
+        upper_right     = base_idx + this->m_width + 1;   
+
+
+        // Creatures can't take diagonal paths
+        bottom_left = -1;
+        bottom_right = -1;
+        upper_left = -1;
+        upper_right = -1;
+
     // If a tile is on the edge, it has no adjacent tiles in certain positions
     if (current_tile->m_is_right_edge)
     {
@@ -301,7 +334,7 @@ std::vector<QSimulationTile*> world::get_adjacent_tiles(QSimulationTile* current
 
         else
         {
-            adjacent_tiles.push_back(this->m_tile_map.at(index));
+            adjacent_tiles.push_back(&this->m_tile_map[index]);
         }
     }
 
@@ -314,27 +347,38 @@ world::world(int x_dim, int y_dim)
     m_width (x_dim)
 {
     //Set size of map
-    m_terrain_map.resize(x_dim * y_dim);
+    m_tile_map.resize(x_dim * y_dim);
 
     //Set noise function and its parameter
     FastNoise noise_module;
     noise_module.SetNoiseType(FastNoise::Perlin);
     srand(time(NULL));
-    noise_module.SetSeed        (rand() % 10000);
-    noise_module.SetFrequency   (0.03);
+    noise_module.SetSeed(rand() % 10000);
+    noise_module.SetFrequency(0.03);
 
     // Fill terrain types to vector
     for (int x = 0; x < x_dim; x++)
     {
         for (int y = 0; y < y_dim; y++)
         {
+            int lin_idx = coordinate_to_index(x, y, y_dim);
+
             // Calculate linear vector 
-            m_terrain_map[coordinate_to_index(x, y, y_dim)] = float_to_terrain_type(noise_module.GetNoise(x, y));
+            m_tile_map[lin_idx].m_terrain_type = float_to_terrain_type(noise_module.GetNoise(x, y));
+            m_tile_map[lin_idx].m_tile_map_idx = lin_idx;
+            m_tile_map[lin_idx].m_pos.x = x;
+            m_tile_map[lin_idx].m_pos.y = y;
+
+            if (lin_idx % y_dim == 0)
+                m_tile_map[lin_idx].m_is_left_edge = true;
+
+            if (lin_idx % y_dim == y_dim - 1)
+                m_tile_map[lin_idx].m_is_right_edge = true;
         }
     }
 }
 
-void world::expand_tile(QSimulationTile* current_tile, QSimulationTile* target_tile, std::vector<QSimulationTile*>* open_list, std::list<QSimulationTile*>* closed_list, PROPERTIES tedrrain_type)
+void world::expand_tile(tile* current_tile, tile* target_tile, std::vector<tile*>* open_list, std::unordered_set<tile*>* closed_list, const PROPERTIES* terrain_type_)
 {
     auto adjacent_tiles = get_adjacent_tiles(current_tile);
 
@@ -344,25 +388,24 @@ void world::expand_tile(QSimulationTile* current_tile, QSimulationTile* target_t
         if (!adjacent_tile)
             continue;
 
-        TERRAIN_TYPE    terrain_type = int_to_terrain_type  (adjacent_tile->m_terrain_type_idx);
-        int             terrain_bias = get_terrain_bias     (terrain_type, tedrrain_type);
+        TERRAIN_TYPE terrain_type = adjacent_tile->m_terrain_type;
+        int terrain_bias = get_terrain_bias(terrain_type, *terrain_type_);
 
         // Bias of -1 means that the tile isn't walkable
         if (terrain_bias == -1)
         {
-            closed_list->push_back(adjacent_tile);
+            closed_list->insert(adjacent_tile);
             continue;
         }
 
-
         // Skip if tile is already on closed_list 
-        if (std::find(closed_list->begin(), closed_list->end(), adjacent_tile) != closed_list->end())
+        if (closed_list->find(adjacent_tile) != closed_list->end())
             continue;
         
         int tentative_g = current_tile->m_g_distance + terrain_bias;
 
-        // Calculate linear distance between this tile and the target
-        adjacent_tile->m_h_distance = distance(adjacent_tile->pos().x(), adjacent_tile->pos().y(), target_tile->pos().x(),target_tile->pos().y());
+        // Calculate manhatten distance between this tile and the target
+        adjacent_tile->m_h_distance = manhatten_distance(adjacent_tile->m_pos, target_tile->m_pos);
 
         // Skip if tile is already on open list and new distance is equal or longer
         if ((std::find(open_list->begin(), open_list->end(), adjacent_tile) != open_list->end()) && tentative_g >= adjacent_tile->m_g_distance)
@@ -373,12 +416,10 @@ void world::expand_tile(QSimulationTile* current_tile, QSimulationTile* target_t
         adjacent_tile->m_g_distance = tentative_g;
         adjacent_tile->m_f_distance = adjacent_tile->m_g_distance + adjacent_tile->m_h_distance;
 
-        // Insert to open_list if not already there, otherwise values are updated since where using pointers
+        // Insert to open_list if not already there, otherwise values are updated since we're using pointers
         if (std::find(open_list->begin(), open_list->end(), adjacent_tile) == open_list->end())
         {
             open_list->push_back(adjacent_tile);
         }
     }
-
-    return;
 }
