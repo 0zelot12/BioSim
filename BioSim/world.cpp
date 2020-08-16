@@ -23,6 +23,7 @@ float manhatten_distance(POINT_2D pos1, POINT_2D pos2)
 
 void world::get_path(tile* arg, std::vector<tile*>* tiles)
 {
+    tiles->push_back(arg);
     tile* pre = arg->m_predecessor;
 
     while (pre)
