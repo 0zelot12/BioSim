@@ -33,11 +33,8 @@ public:
     // Terrain images in TGA format 
     std::vector<std::shared_ptr<image>> m_tga_terrain_images;
 
-    // Creature images in TGA format 
-    std::vector<std::shared_ptr<image>> m_tga_creature_images;
-
-    // Creature images in custom format 
-    std::vector<std::shared_ptr<CREATURE_IMAGE>> m_creature_images;
+    std::shared_ptr<QPixmap> m_cursor_pixmap;
+    std::shared_ptr<QPixmap> m_path_pixmap;
 
     // Maps a terrain type to its original image data
     std::map<TERRAIN_TYPE, QPixmap> m_terrain_type_to_pixmap;

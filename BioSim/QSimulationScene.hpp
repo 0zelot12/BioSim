@@ -30,8 +30,15 @@ public:
 
     //TODO: In methode auslagern & nicht als pointer speichern
     std::map<TERRAIN_TYPE, QPixmap>* m_terrain_type_to_pixmap;
+
     //TODO: In methode auslagern & nicht als pointer speichern
     std::map<std::shared_ptr<creature_type>, QPixmap>* m_creature_type_to_pixmap;
+
+    // Pixmap for the cursor
+    QPixmap m_cursor_pixmap;
+
+    // Pixmap for the path symbol
+    QPixmap m_path_pixmap;
 
     //TODO: In Konstruktor auslagern
     bio_sim_model* m_model = nullptr;

@@ -25,13 +25,13 @@ void QSimulationScene::draw_tile(int position, bool is_cursor, bool is_path)
 
     if (is_path)
     {
-        QPixmap path_pixmap(".\\graphics\\environment\\path\\path.tga");
+        QPixmap path_pixmap = this->m_path_pixmap;
         painter.drawPixmap(0, 0, path_pixmap);
     }
 
     if (is_cursor)
     {
-        QPixmap cursor_pixmap(".\\graphics\\environment\\cursor\\cursor.tga");
+        QPixmap cursor_pixmap = this->m_cursor_pixmap;
         painter.drawPixmap(0, 0, cursor_pixmap);
     }
 
@@ -45,7 +45,6 @@ int QSimulationScene::get_current_cursor_position()
     return m_last_cursor_index;
 }
 
-
 void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
     if (mouseEvent->button() == Qt::LeftButton)
@@ -54,7 +53,7 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
         int clicked_index = get_tile_map_idx(point_clicked);
 
-        if (clicked_index >= 0 && clicked_index < m_model->m_world.m_tile_map.size() - 1)
+        if (clicked_index >= 0 && clicked_index < m_model->m_world.m_tile_map.size())
         {
             if(!m_last_path_tiles.empty())
                 draw_tiles(this->m_last_path_tiles);

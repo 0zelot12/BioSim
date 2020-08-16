@@ -10,8 +10,7 @@
 
 bio_sim_gui::bio_sim_gui(QWidget* parent)
 try : QMainWindow(parent),
-m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terrain")),
-m_tga_creature_images(image::load_creature_images(".\\graphics\\environment\\land", ".\\graphics\\environment\\wasser"))
+m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terrain"))
 {
     m_ui.setupUi(this);
 
@@ -27,14 +26,21 @@ m_tga_creature_images(image::load_creature_images(".\\graphics\\environment\\lan
     //Put the first creature_type in the list as initial value 
     fill_creature_selection(0);
 
+    // Get pixmap of the cursor
+    std::shared_ptr<image> cursor_tga = image::load_image(".\\graphics\\environment\\cursor\\cursor.tga");
+
+    // Get pixmap of path symbol
+    std::shared_ptr<image> path_tga = image::load_image(".\\graphics\\environment\\path\\path.tga");
+
     // Load the creature images and convert them to QPixmap, then put them to the map
-    for (int i = 0; i < m_tga_creature_images.size(); i++)
+    for (int i = 0; i < this->m_presenter.m_creature_types().size(); i++)
     {
+        image image_tga = image(".\\graphics\\environment\\" + this->m_presenter.m_creature_types().at(i)->image_path());
         QPixmap pixmap = QPixmap::fromImage(
             QImage(
-                (unsigned char*)m_tga_creature_images[i]->m_pixel_data.data(),
-                m_tga_creature_images[i]->width(),
-                m_tga_creature_images[i]->height(),
+                (unsigned char*)image_tga.m_pixel_data.data(),
+                image_tga.width(),
+                image_tga.height(),
                 QImage::Format_ARGB32
             ).mirrored());
 
@@ -81,6 +87,20 @@ m_tga_creature_images(image::load_creature_images(".\\graphics\\environment\\lan
     m_simulation_scene.m_model = &this->m_presenter.model;
     m_simulation_scene.m_terrain_type_to_pixmap = &this->m_terrain_type_to_pixmap;
     m_simulation_scene.m_creature_type_to_pixmap = &this->m_creature_type_to_pixmap;
+
+    m_simulation_scene.m_cursor_pixmap = QPixmap::fromImage(
+        QImage((unsigned char*)cursor_tga->m_pixel_data.data(),
+            cursor_tga->width(),
+            cursor_tga->height(),
+            QImage::Format_ARGB32
+        ).mirrored());
+
+    m_simulation_scene.m_path_pixmap = QPixmap::fromImage(QImage(
+            (unsigned char*)path_tga->m_pixel_data.data(),
+            path_tga->width(),
+            path_tga->height(),
+            QImage::Format_ARGB32
+        ).mirrored());
     
     // Show scene
     m_ui.simulation_area->setScene(&m_simulation_scene);
@@ -91,7 +111,7 @@ m_tga_creature_images(image::load_creature_images(".\\graphics\\environment\\lan
 catch (const std::exception& e)
 {
     QMessageBox messageBox;
-    messageBox.critical(0, "Error", "An error has occured! ");
+    messageBox.critical(0, "Error", e.what());
 }
 
 
@@ -121,6 +141,7 @@ void bio_sim_gui::on_place_creature_btn_clicked()
     // Get selected creature type
     auto type = this->m_presenter.m_creature_types().at(m_ui.creature_choice_box->currentIndex());
 
+    // Put it to simualation, show error if not successfull
     bool success = this->m_presenter.model.m_world.add_creature(type, m_simulation_scene.get_current_cursor_position());
     if (!success)
     {
@@ -130,6 +151,7 @@ void bio_sim_gui::on_place_creature_btn_clicked()
         return;
     }
 
+    // Draw the tile with the creature + the cursor on it
     m_simulation_scene.draw_tile(m_simulation_scene.get_current_cursor_position(), true, false);
 }
 

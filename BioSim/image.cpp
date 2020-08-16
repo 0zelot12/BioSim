@@ -222,17 +222,10 @@ std::vector<std::shared_ptr<image>> image::load_terrain_images(const std::string
 	return images;
 }
 
-std::vector<std::shared_ptr<image>> image::load_creature_images(const std::string& directory_path_land, const std::string& directory_path_water)
+std::shared_ptr<image> image::load_image(const std::string& path)
 {
-	// Load creature images 
-	std::vector<std::shared_ptr<image>> creature_tga_images = image::load_terrain_images(directory_path_land);
-	std::vector<std::shared_ptr<image>> water_creatures_tga_images = image::load_terrain_images(directory_path_water);
-
-	// Put the two vectors together
-	creature_tga_images.insert(creature_tga_images.end(), water_creatures_tga_images.begin(), water_creatures_tga_images.end());
-
-	return creature_tga_images;
-
+	std::shared_ptr<image> img_ptr = std::make_shared<image>(image(path));
+	return img_ptr;
 }
 
 const std::string image::OUTPUT_FILE_NAME_ = "output.tga";

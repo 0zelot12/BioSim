@@ -101,8 +101,8 @@ public:
 	// Loads all image files from the specified directory 
 	static std::vector<std::shared_ptr<image>> load_terrain_images(const std::string& directory_path);
 
-	// Loads all image files from the specified directory 
-	static std::vector<std::shared_ptr<image>> load_creature_images(const std::string& directory_path_land, const std::string& directory_path_water);
+	// Load image from specified path
+	static std::shared_ptr<image> load_image(const std::string& path);
 
 	const char width()	{ return m_header.width; };
 	const char height()	{ return m_header.width; };	
@@ -131,17 +131,3 @@ private:
 	static const int BITS_PER_CHANNEL_ = 4;
 	static const int HEADER_SIZE_BYTES_ = 18;
 }; 
-
-/**
-*************************************************************************
-* @struct CREATURE_IMAGE
-*
-* Custom datatype for handling creature images in Qt datatype
-*************************************************************************/
-struct CREATURE_IMAGE
-{
-	std::shared_ptr<image>  tga_image;
-	QByteArray              q_bytes;
-	QImage                  q_image;
-	QPixmap                 q_pixmap;
-};

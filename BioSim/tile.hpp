@@ -8,7 +8,6 @@
 *
 * Enum type for the different terrain types
 *************************************************************************/
-
 enum class TERRAIN_TYPE
 {
 	DEEP_WATER,
@@ -19,11 +18,24 @@ enum class TERRAIN_TYPE
 	SNOW
 };
 
+/**
+*************************************************************************
+* @struct POINT_2D
+*
+* Representation of the tile map index in 2D coordinates
+*************************************************************************/
 struct POINT_2D
 {
 	int x, y;
 };
 
+
+/**
+*************************************************************************
+* @class tile
+*
+* Represents a tile in the simulation, that contains the creatures
+*************************************************************************/
 class tile
 {
 public:
@@ -43,7 +55,7 @@ public:
 	// Indicats whether a tile is located on the edge of the map
 	bool m_is_left_edge = false, m_is_right_edge = false;
 
-	/* Distances needed for A*-algorithm */
+	// Distances needed for A*-algorithm 
 	float m_g_distance = 0, m_f_distance = 0, m_h_distance = 0;
 
 	// Position on map in 2D coordinates
