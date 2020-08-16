@@ -36,7 +36,6 @@ enum class PROPERTIES
 * Class contains all methods regarding validating 
 * and setting attributes of an creature_type
 *************************************************************************/
-
 class attributes
 {
 public:

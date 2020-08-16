@@ -18,7 +18,6 @@
 *
 * Model containing the actual simulation
 *************************************************************************/
-
 class bio_sim_model
 {
 public:

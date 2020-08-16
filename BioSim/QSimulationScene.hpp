@@ -17,7 +17,6 @@
 *
 * Custom class for handling the simulation graphics
 *************************************************************************/
-
 class QSimulationScene : public QGraphicsScene
 {
 public:
@@ -29,10 +28,10 @@ public:
     int get_current_cursor_position();
 
     //TODO: In methode auslagern & nicht als pointer speichern
-    std::map<TERRAIN_TYPE, QPixmap>* m_terrain_type_to_pixmap;
+    const std::map<TERRAIN_TYPE, QPixmap>* m_terrain_type_to_pixmap;
 
     //TODO: In methode auslagern & nicht als pointer speichern
-    std::map<std::shared_ptr<creature_type>, QPixmap>* m_creature_type_to_pixmap;
+    const std::map<std::shared_ptr<creature_type>, QPixmap>* m_creature_type_to_pixmap;
 
     // Pixmap for the cursor
     QPixmap m_cursor_pixmap;

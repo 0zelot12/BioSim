@@ -11,12 +11,12 @@
 creature_type::creature_type(const std::string& name, unsigned int staerke, unsigned int geschwindigkeit, 
 								unsigned int lebensdauer, const std::string& eigenschaften, const std::string& bild_pfad)
 	:
-	m_name		(name				),
-	m_properties(eigenschaften		),
-	m_image_path(bild_pfad			),
-	m_strength	(staerke			),
-	m_speed		(geschwindigkeit	),
-	m_life_span	(lebensdauer		)
+	m_name		(name),
+	m_properties(eigenschaften),
+	m_image_path(bild_pfad),
+	m_strength	(staerke),
+	m_speed		(geschwindigkeit),
+	m_life_span	(lebensdauer)
 
 {
 	attributes::set_eigenschaften(eigenschaften, m_properties_list);

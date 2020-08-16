@@ -38,13 +38,14 @@ m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terra
         image image_tga = image(".\\graphics\\environment\\" + this->m_presenter.m_creature_types().at(i)->image_path());
         QPixmap pixmap = QPixmap::fromImage(
             QImage(
-                (unsigned char*)image_tga.m_pixel_data.data(),
+                (unsigned char*)image_tga.pixel_data().data(),
                 image_tga.width(),
                 image_tga.height(),
                 QImage::Format_ARGB32
             ).mirrored());
 
-        m_creature_type_to_pixmap.insert(std::pair<std::shared_ptr<creature_type>, QPixmap>(this->m_presenter.m_creature_types().at(i), pixmap));
+        m_creature_type_to_pixmap.insert(std::pair<std::shared_ptr<creature_type>,
+            QPixmap>(this->m_presenter.m_creature_types().at(i), pixmap));
     }
 
     // Load the terrain images and convert them to QPixmap, then put them to the map
@@ -53,7 +54,7 @@ m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terra
         TERRAIN_TYPE type = world::int_to_terrain_type(i);
         QPixmap pixmap = QPixmap::fromImage(
             QImage(
-                (unsigned char*)m_tga_terrain_images[i]->m_pixel_data.data(),
+                (unsigned char*)m_tga_terrain_images[i]->pixel_data().data(),
                 m_tga_terrain_images[i]->width(),
                 m_tga_terrain_images[i]->height(),
                 QImage::Format_ARGB32
@@ -89,14 +90,14 @@ m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terra
     m_simulation_scene.m_creature_type_to_pixmap = &this->m_creature_type_to_pixmap;
 
     m_simulation_scene.m_cursor_pixmap = QPixmap::fromImage(
-        QImage((unsigned char*)cursor_tga->m_pixel_data.data(),
+        QImage((unsigned char*)cursor_tga->pixel_data().data(),
             cursor_tga->width(),
             cursor_tga->height(),
             QImage::Format_ARGB32
         ).mirrored());
 
     m_simulation_scene.m_path_pixmap = QPixmap::fromImage(QImage(
-            (unsigned char*)path_tga->m_pixel_data.data(),
+            (unsigned char*)path_tga->pixel_data().data(),
             path_tga->width(),
             path_tga->height(),
             QImage::Format_ARGB32

@@ -18,7 +18,6 @@
 * Instances of this class represent a type of a creature, with their properties
 * Types are loaded from a csv-File and then verified
 *************************************************************************/
-
 class creature_type
 {
 

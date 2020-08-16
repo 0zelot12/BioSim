@@ -30,8 +30,6 @@ void world::get_path(tile* arg, std::vector<tile*>* tiles)
         tiles->push_back(pre);
         pre = pre->m_predecessor;
     }
-
-    clear_predecessors();
 }
 
 void world::clear_predecessors()
@@ -82,16 +80,6 @@ TERRAIN_TYPE world::float_to_terrain_type(float input)
     }
 }
 
-const std::map<TERRAIN_TYPE, int> m_terrain_type_to_int =
-{
-    {TERRAIN_TYPE::DEEP_WATER,      0},
-    {TERRAIN_TYPE::EARTH,           1},
-    {TERRAIN_TYPE::STONE,           2},
-    {TERRAIN_TYPE::SAND,            3},
-    {TERRAIN_TYPE::SHALLOW_WATER,   4},
-    {TERRAIN_TYPE::SNOW,            5}
-};
-
 const std::map<TERRAIN_TYPE, int> m_terrain_bias_land =
 {
     {TERRAIN_TYPE::DEEP_WATER,     -1},
@@ -122,11 +110,6 @@ const std::map<int, TERRAIN_TYPE> m_int_to_terrain_type =
     {5, TERRAIN_TYPE::SNOW          }
 };
 
-int world::terrain_type_to_int(TERRAIN_TYPE terrain_type)
-{
-    return m_terrain_type_to_int.find(terrain_type)->second;
-}
-
 TERRAIN_TYPE world::int_to_terrain_type(int terrain_type_idx)
 {
     return m_int_to_terrain_type.find(terrain_type_idx)->second;
@@ -152,7 +135,8 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
 
 bool world::add_creature(const std::shared_ptr<creature_type>& type, int position)
 {
-    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), position, type->name(), type->property_list(), type);
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), 
+        position, type->name(), type->property_list(), type);
 
     TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
 
@@ -161,7 +145,10 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
         return false;
     }
 
-    else if (new_creature->terrain_type() == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
+    else if (new_creature->terrain_type() == PROPERTIES::WASSERBEWOHNER && 
+        (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH 
+                                            || terrain_type == TERRAIN_TYPE::STONE 
+                                            || terrain_type == TERRAIN_TYPE::SNOW))
     {
         return false;
     }
@@ -273,7 +260,7 @@ std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
             adjacent_tile->m_g_distance = tentative_g;
             adjacent_tile->m_f_distance = adjacent_tile->m_g_distance + adjacent_tile->m_h_distance;
 
-            // Insert to open_list if not already there, otherwise values are updated since we're using pointers
+            // Insert to open_list if not already there
             if (values_on_open_list.find(adjacent_tile) == values_on_open_list.end())
             {
                 open_list.push(adjacent_tile);
@@ -307,11 +294,11 @@ std::vector<tile*> world::get_adjacent_tiles(tile* current_tile)
         upper_right     = base_idx + this->m_width + 1;   
 
 
-        // Creatures can't take diagonal paths
-        bottom_left = -1;
-        bottom_right = -1;
-        upper_left = -1;
-        upper_right = -1;
+     // Creatures can't take diagonal paths
+     bottom_left  = -1;
+     bottom_right = -1;
+     upper_left   = -1;
+     upper_right  = -1;
 
     // If a tile is on the edge, it has no adjacent tiles in certain positions
     if (current_tile->m_is_right_edge)

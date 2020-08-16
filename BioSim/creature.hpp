@@ -14,7 +14,6 @@ class QSimulationTile;
 *
 * Class holds the actual instance of a creature_type
 *************************************************************************/
-
 class creature
 {
 public:

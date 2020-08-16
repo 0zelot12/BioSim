@@ -25,7 +25,6 @@
 *
 * Throws if the image is in an unsupported format
 *************************************************************************/
-
 class invalid_image_format : public std::exception
 {
 	virtual const char* what() const noexcept override;
@@ -36,9 +35,7 @@ class invalid_image_format : public std::exception
 * @class corrupted_image_data
 *
 * Throws if fewer bytes were read, than specified in the header
-
 *************************************************************************/
-
 class corrupted_image_data : public std::exception
 {
 	virtual const char* what() const noexcept override;
@@ -51,7 +48,6 @@ class corrupted_image_data : public std::exception
 * Defines datatype for an image in TGA format
 * The header consists of 18 bytes (char = 1 byte; short = 2 bytes)
 *************************************************************************/
-
 struct TGA_HEADER
 {
 	// Length of id string 
@@ -79,21 +75,11 @@ struct TGA_HEADER
 * Defines datatype for an image in TGA format
 * The header consists of 18 bytes (char = 1 byte; short = 2 bytes)
 *************************************************************************/
-
 class image
 {
 public:
 
 	image(const std::string& image_path);
-
-	// Holds the image data -NOT NEEDED -> pointer->getdata()
-	std::vector<char> m_pixel_data;
-
-	// Saves image object to the specified path
-	static void save_image(const std::string& path, image& image);
-
-	// Saves image object to the specified path using ofilstream
-	static void save_image_fs(const std::string& path, image& image);
 
 	// Expose data without possibility of changing 
 	const std::vector<char>& pixel_data() const { return m_pixel_data; }
@@ -126,8 +112,17 @@ private:
 	// Loads image from the TGA file at the specified path 
 	static void load_image(const std::string& path, std::vector<char>& pixel_data, TGA_HEADER& header);
 
+	// Saves image object to the specified path
+	static void save_image(const std::string& path, image& image);
+
+	// Saves image object to the specified path using ofilstream
+	static void save_image_fs(const std::string& path, image& image);
+
 	// Filename for saved image (only for debugging) 
 	static const std::string OUTPUT_FILE_NAME_;
 	static const int BITS_PER_CHANNEL_ = 4;
 	static const int HEADER_SIZE_BYTES_ = 18;
+
+	// Holds the image data
+	std::vector<char> m_pixel_data;
 }; 
