@@ -99,7 +99,10 @@ public:
 	const std::vector<char>& pixel_data() const { return m_pixel_data; }
 
 	// Loads all image files from the specified directory 
-	static std::vector<std::shared_ptr<image>> load_images(const std::string& directory_path);
+	static std::vector<std::shared_ptr<image>> load_terrain_images(const std::string& directory_path);
+
+	// Loads all image files from the specified directory 
+	static std::vector<std::shared_ptr<image>> load_creature_images(const std::string& directory_path_land, const std::string& directory_path_water);
 
 	const char width()	{ return m_header.width; };
 	const char height()	{ return m_header.width; };	

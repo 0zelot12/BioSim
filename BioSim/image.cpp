@@ -212,7 +212,7 @@ void image::check_image_format( const char& id_length,
 	}
 }
 
-std::vector<std::shared_ptr<image>> image::load_images(const std::string& directory_path)
+std::vector<std::shared_ptr<image>> image::load_terrain_images(const std::string& directory_path)
 {
 	std::vector<std::shared_ptr<image>> images;
 
@@ -220,6 +220,19 @@ std::vector<std::shared_ptr<image>> image::load_images(const std::string& direct
 		images.push_back(std::make_shared<image>(entry.path().string()));
 
 	return images;
+}
+
+std::vector<std::shared_ptr<image>> image::load_creature_images(const std::string& directory_path_land, const std::string& directory_path_water)
+{
+	// Load creature images 
+	std::vector<std::shared_ptr<image>> creature_tga_images = image::load_terrain_images(directory_path_land);
+	std::vector<std::shared_ptr<image>> water_creatures_tga_images = image::load_terrain_images(directory_path_water);
+
+	// Put the two vectors together
+	creature_tga_images.insert(creature_tga_images.end(), water_creatures_tga_images.begin(), water_creatures_tga_images.end());
+
+	return creature_tga_images;
+
 }
 
 const std::string image::OUTPUT_FILE_NAME_ = "output.tga";

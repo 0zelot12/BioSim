@@ -43,7 +43,7 @@ public:
     std::map<TERRAIN_TYPE, QPixmap> m_terrain_type_to_pixmap;
 
     // Maps a creature to its original image data
-    std::map<std::string, std::shared_ptr<QPixmap>> m_creature_type_to_pixmap;
+    std::map<std::shared_ptr<creature_type>, QPixmap> m_creature_type_to_pixmap;
 
 public slots:
 

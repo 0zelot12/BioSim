@@ -5,6 +5,7 @@
 #include <memory>
 #include <algorithm>
 #include <unordered_set>
+#include <queue>
 
 #include "image.hpp"
 #include "FastNoise.h"
@@ -35,7 +36,7 @@ public:
 	unsigned int m_height, m_width;
 
 	// Calculates optimal path between a creature and a tile using A* algorithm
-	//std::vector<QSimulationTile*>path_to_target(const creature* creature, QSimulationTile* target_tile);
+	std::vector<tile*> path_to_target(const std::shared_ptr<creature> creature, tile* target_tile);
 
 	// Calculates optimal path between two tiles using A* algorithm
 	std::vector<tile*> path_to_target(tile* start_tile, tile* target_tile);
@@ -56,15 +57,10 @@ public:
 	static int get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type);
 
 	// Adds creature to the simulation, returns true in case of success
-	bool add_creature(std::shared_ptr<creature> new_creature);
-
-	// Adds creature to the simulation, returns true in case of success
-	bool add_creature(const creature_type& type, int position);
+	bool add_creature(const std::shared_ptr<creature_type>& type, int position);
 
 private:
 
-	// Expands given node to check its adjacent tiles 
-	void expand_tile(tile* current_tile, tile* target_tile, std::vector<tile*>* open_list, std::unordered_set<tile*>*, const PROPERTIES* terrain_type_);
 	//Returns vector with pointer to all adjacent tiles of the inputed tile 
 	std::vector<tile*> get_adjacent_tiles(tile* current_tile);
 

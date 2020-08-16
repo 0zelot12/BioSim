@@ -23,13 +23,15 @@ class QSimulationScene : public QGraphicsScene
 public:
 
     // Draw tile with all contents 
-    void draw_tile(int position, bool is_cursor);
+    void draw_tile(int position, bool is_cursor, bool is_path);
 
     // Returns the current index of the cursor
     int get_current_cursor_position();
 
-    //TODO: In methode auslagern
+    //TODO: In methode auslagern & nicht als pointer speichern
     std::map<TERRAIN_TYPE, QPixmap>* m_terrain_type_to_pixmap;
+    //TODO: In methode auslagern & nicht als pointer speichern
+    std::map<std::shared_ptr<creature_type>, QPixmap>* m_creature_type_to_pixmap;
 
     //TODO: In Konstruktor auslagern
     bio_sim_model* m_model = nullptr;
@@ -43,7 +45,7 @@ protected:
 private:
 
     // Resets tiles to its original terrain graphic 
-    void reset_tiles(std::vector<tile*> tiles_to_redraw);
+    void draw_tiles(std::vector<tile*> tiles_to_redraw);
 
     // Remember tiles that were used by the last path 
     std::vector<tile*> m_last_path_tiles;
@@ -53,12 +55,6 @@ private:
 
     // Returns the linear vector index for a point clicked on the GUI
     int get_tile_map_idx(QPointF point_clicked);
-
-    // Returns original pixmap for the the tile
-    QPixmap get_pixmap(const tile& tile);
-
-    // Sets the given pixmap as image of the specified tile
-    void set_pixmap(QPixmap& pixmap, const tile& tile);
 
     // Returns pointer to tile at a given index
     tile* idx_to_tile(int idx);

@@ -19,13 +19,7 @@ class creature
 {
 public:
 
-	creature(	unsigned int			strength, 
-				unsigned int			life_span, 
-				int						position, 
-				std::string				name, 
-				std::vector<PROPERTIES>	properties, 
-				QPixmap*				creature_image);
-
+	creature(unsigned int strength, unsigned int life_span, int	position, std::string name, std::vector<PROPERTIES>	properties, std::shared_ptr<creature_type> type);
 
 	unsigned int m_strength, m_speed, m_life_span;
 
@@ -35,8 +29,6 @@ public:
 	std::string m_name;
 
 	std::vector<PROPERTIES> m_properties;
-
-	QPixmap* m_creature_image;
 
 	// Pointer to original type
 	std::shared_ptr<creature_type> m_type;

@@ -150,113 +150,67 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
     }
 }
 
-bool world::add_creature(std::shared_ptr<creature> new_creature)
+bool world::add_creature(const std::shared_ptr<creature_type>& type, int position)
 {
-    PROPERTIES type = new_creature->terrain_type();
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), position, type->name(), type->property_list(), type);
+
     TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
 
-    if (type == PROPERTIES::LANDBEWOHNER && (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
+    if (new_creature->terrain_type() == PROPERTIES::LANDBEWOHNER && (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
     {
         return false;
     }
 
-    else if (type == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
+    else if (new_creature->terrain_type() == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
     {
         return false;
     }
 
     m_creature_map.push_back(new_creature);
-    m_tile_map[new_creature->m_current_position].m_creatures_on_tile.push_back(new_creature);
+    m_tile_map[position].m_creatures_on_tile.push_back(new_creature);
 
     return true;
 }
 
-bool world::add_creature(const creature_type& type, int position)
+std::vector<tile*> world::path_to_target(const std::shared_ptr<creature> creature, tile* target_tile)
 {
-    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type.strength(), type.speed(), position,type.name(), type.property_list(), nullptr);
-
-    //PROPERTIES type = new_creature->terrain_type();
-    //TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
-
-    //if (type == PROPERTIES::LANDBEWOHNER && (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
-    //{
-    //    return false;
-    //}
-
-    //else if (type == PROPERTIES::WASSERBEWOHNER && (terrain_type == TERRAIN_TYPE::SAND || terrain_type == TERRAIN_TYPE::EARTH || terrain_type == TERRAIN_TYPE::STONE || terrain_type == TERRAIN_TYPE::SNOW))
-    //{
-    //    return false;
-    //}
-
-    m_creature_map.push_back(new_creature);
-    m_tile_map[new_creature->m_current_position].m_creatures_on_tile.push_back(new_creature);
-
-    return true;
+    return path_to_target(&m_tile_map[creature->m_current_position], target_tile);
 }
-
-//std::vector<QSimulationTile*> world::path_to_target(const creature* creature, QSimulationTile* target_tile)
-//{
-//    std::vector <QSimulationTile*> path;
-//    std::vector <QSimulationTile*> open_list;
-//    std::list   <QSimulationTile*> closed_list;
-//
-//    auto start_tile = this->m_tile_map[creature->m_current_position];
-//
-//    open_list.push_back(start_tile);
-//
-//    while (!open_list.empty())
-//    {
-//        QSimulationTile* current_tile = open_list.back();
-//        open_list.pop_back();
-//
-//        if (current_tile == target_tile)
-//        {
-//            get_predecessor(target_tile, &path);
-//            return path;
-//        }
-//
-//        closed_list.push_front(current_tile);
-//
-//        expand_node(current_tile, target_tile, &open_list, &closed_list);
-//
-//        /* Sort the list by f_values for the next iteration */
-//        std::sort(open_list.begin(), open_list.end(), compare_f_distance());
-//    }
-//
-//    return path;
-//
-//}
 
 std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
 {
     std::vector<tile*> path;
-    std::vector<tile*> open_list;
+
     std::unordered_set<tile*> closed_list;
 
-    open_list.push_back(start_tile);
+    std::unordered_set<tile*> values_on_open_list;
+    std::priority_queue<tile*, std::vector<tile*>, compare_f_distance> open_list;
 
-    PROPERTIES terrain_type;
+    open_list.push(start_tile);
+    values_on_open_list.insert(start_tile);
+
+    PROPERTIES tp;
 
     TERRAIN_TYPE start_tile_terrain_type = start_tile->m_terrain_type;
     TERRAIN_TYPE target_tile_terrain_type = target_tile->m_terrain_type;
 
     if (start_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || start_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER)
     {
-        terrain_type = PROPERTIES::WASSERBEWOHNER;
+        tp = PROPERTIES::WASSERBEWOHNER;
     }
 
     else
     {
-        terrain_type = PROPERTIES::LANDBEWOHNER;
+        tp = PROPERTIES::LANDBEWOHNER;
     }
 
-    if (terrain_type == PROPERTIES::LANDBEWOHNER && (target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
+    if (tp == PROPERTIES::LANDBEWOHNER && (target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
     {
         clear_predecessors();
         return path;
     }
 
-    if (terrain_type != PROPERTIES::LANDBEWOHNER && !(target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
+    if (tp != PROPERTIES::LANDBEWOHNER && !(target_tile_terrain_type == TERRAIN_TYPE::DEEP_WATER || target_tile_terrain_type == TERRAIN_TYPE::SHALLOW_WATER))
     {
         clear_predecessors();
         return path;
@@ -270,8 +224,9 @@ std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
             return path;
         }
 
-        tile* current_tile = open_list.back();
-        open_list.pop_back();
+        tile* current_tile = open_list.top();
+        values_on_open_list.erase(current_tile);
+        open_list.pop();
 
         if (current_tile == target_tile)
         {
@@ -283,13 +238,52 @@ std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
 
         closed_list.insert(current_tile);
 
-        expand_tile(current_tile, target_tile, &open_list, &closed_list, &terrain_type);
+        auto adjacent_tiles = get_adjacent_tiles(current_tile);
+        for (auto adjacent_tile : adjacent_tiles)
+        {
+            // Not all tiles have exactly 8 adjacent tiles
+            if (!adjacent_tile)
+                continue;
 
-        // Sort the list by f_values for the next iteration
-        std::sort(open_list.begin(), open_list.end(), compare_f_distance());
+            TERRAIN_TYPE terrain_type = adjacent_tile->m_terrain_type;
+            int terrain_bias = get_terrain_bias(terrain_type, tp);
+
+            // Bias of -1 means that the tile isn't walkable
+            if (terrain_bias == -1)
+            {
+                closed_list.insert(adjacent_tile);
+                continue;
+            }
+
+            // Skip if tile is already on closed_list 
+            if (closed_list.find(adjacent_tile) != closed_list.end())
+                continue;
+
+            int tentative_g = current_tile->m_g_distance + terrain_bias;
+
+            // Calculate manhatten distance between this tile and the target
+            adjacent_tile->m_h_distance = manhatten_distance(adjacent_tile->m_pos, target_tile->m_pos);
+
+            // Skip if tile is already on open list and new distance is equal or longer
+            if ((values_on_open_list.find(adjacent_tile) != values_on_open_list.end()) && tentative_g >= adjacent_tile->m_g_distance)
+                continue;
+
+             // Update distances
+            adjacent_tile->m_predecessor = current_tile;
+            adjacent_tile->m_g_distance = tentative_g;
+            adjacent_tile->m_f_distance = adjacent_tile->m_g_distance + adjacent_tile->m_h_distance;
+
+            // Insert to open_list if not already there, otherwise values are updated since we're using pointers
+            if (values_on_open_list.find(adjacent_tile) == values_on_open_list.end())
+            {
+                open_list.push(adjacent_tile);
+                values_on_open_list.insert(adjacent_tile);
+            }
+        }
     }
 
     clear_predecessors();
+
     return path;
 }
 
@@ -397,52 +391,6 @@ world::world(int x_dim, int y_dim)
 
             if (lin_idx % y_dim == y_dim - 1)
                 m_tile_map[lin_idx].m_is_right_edge = true;
-        }
-    }
-}
-
-void world::expand_tile(tile* current_tile, tile* target_tile, std::vector<tile*>* open_list, std::unordered_set<tile*>* closed_list, const PROPERTIES* terrain_type_)
-{
-    auto adjacent_tiles = get_adjacent_tiles(current_tile);
-
-    for (auto adjacent_tile : adjacent_tiles)
-    {
-        // Not all tiles have exactly 8 adjacent tiles
-        if (!adjacent_tile)
-            continue;
-
-        TERRAIN_TYPE terrain_type = adjacent_tile->m_terrain_type;
-        int terrain_bias = get_terrain_bias(terrain_type, *terrain_type_);
-
-        // Bias of -1 means that the tile isn't walkable
-        if (terrain_bias == -1)
-        {
-            closed_list->insert(adjacent_tile);
-            continue;
-        }
-
-        // Skip if tile is already on closed_list 
-        if (closed_list->find(adjacent_tile) != closed_list->end())
-            continue;
-        
-        int tentative_g = current_tile->m_g_distance + terrain_bias;
-
-        // Calculate manhatten distance between this tile and the target
-        adjacent_tile->m_h_distance = manhatten_distance(adjacent_tile->m_pos, target_tile->m_pos);
-
-        // Skip if tile is already on open list and new distance is equal or longer
-        if ((std::find(open_list->begin(), open_list->end(), adjacent_tile) != open_list->end()) && tentative_g >= adjacent_tile->m_g_distance)
-            continue;
-
-        // Update distances
-        adjacent_tile->m_predecessor = current_tile;
-        adjacent_tile->m_g_distance = tentative_g;
-        adjacent_tile->m_f_distance = adjacent_tile->m_g_distance + adjacent_tile->m_h_distance;
-
-        // Insert to open_list if not already there, otherwise values are updated since we're using pointers
-        if (std::find(open_list->begin(), open_list->end(), adjacent_tile) == open_list->end())
-        {
-            open_list->push_back(adjacent_tile);
         }
     }
 }
