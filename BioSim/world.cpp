@@ -172,7 +172,7 @@ std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
     std::unordered_set<tile*> closed_list;
 
     std::unordered_set<tile*> values_on_open_list;
-    std::priority_queue<tile*, std::vector<tile*>, compare_f_distance> open_list;
+    std::priority_queue<tile*, std::deque<tile*>, compare_f_distance> open_list;
 
     open_list.push(start_tile);
     values_on_open_list.insert(start_tile);
