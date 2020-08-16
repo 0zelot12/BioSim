@@ -206,7 +206,7 @@ std::vector<tile*> world::path_to_target(tile* start_tile, tile* target_tile)
 
     while (!open_list.empty())
     {
-        if (open_list.size() > 5000)
+        if (open_list.size() > this->m_height * this->m_width)
         {
             clear_predecessors();
             return path;
