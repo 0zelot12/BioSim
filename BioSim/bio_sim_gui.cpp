@@ -118,9 +118,9 @@ catch (const std::exception& e)
 
 void bio_sim_gui::on_ctrl_start_btn_clicked()
 {
-    QMessageBox msg_box;
-    msg_box.setText("Start button clicked");
-    msg_box.exec();
+        QMessageBox msg_box;
+        msg_box.setText("Start button clicked");
+        msg_box.exec();
 }
 
 void bio_sim_gui::on_ctrl_stop_btn_clicked()
@@ -132,9 +132,7 @@ void bio_sim_gui::on_ctrl_stop_btn_clicked()
 
 void bio_sim_gui::on_ctrl_step_btn_clicked()
 {
-    QMessageBox msg_box;
-    msg_box.setText("Step button clicked");
-    msg_box.exec();
+    this->m_presenter.model.m_world.simulation_step();
 }
 
 void bio_sim_gui::on_place_creature_btn_clicked()

@@ -81,6 +81,47 @@ TERRAIN_TYPE world::float_to_terrain_type(float input)
     }
 }
 
+void world::make_transition(std::shared_ptr<creature>& entity)
+{
+    if (entity->m_life_span <= 0)
+    {
+        entity_die(entity);
+    }
+
+    if (entity->entity_type() == PROPERTIES::PFLANZE)
+    {
+        if ((entity->m_type->life_span() - entity->m_life_span) > entity->m_life_span / 100)
+        {
+            //plant_grow();
+        }
+
+        else
+        {
+            plant_wait(entity, m_tile_map[entity->m_current_position].m_terrain_type);
+        }
+    }
+}
+
+void world::entity_die(std::shared_ptr<creature>& entity)
+{
+    entity->m_current_state = STATE::DEAD;
+}
+
+void world::plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& terrain_type)
+{
+    if (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SNOW || terrain_type == TERRAIN_TYPE::STONE)
+    {
+        plant->m_life_span -= 25;
+    }
+
+    else
+    {
+        plant->m_life_span -= 10;
+    }
+
+    // No state transition needed here
+}
+
 const std::map<TERRAIN_TYPE, int> m_terrain_bias_land =
 {
     {TERRAIN_TYPE::DEEP_WATER,     -1},
@@ -136,8 +177,8 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
 
 bool world::add_creature(const std::shared_ptr<creature_type>& type, int position)
 {
-    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), 
-        position, type->name(), type->property_list(), type);
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), type->life_span(), 
+                                                                            position, type->name(), type->property_list(), type);
 
     TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
 
@@ -158,6 +199,14 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
     m_tile_map[position].m_creatures_on_tile.push_back(new_creature);
 
     return true;
+}
+
+void world::simulation_step()
+{
+    for (auto& entity : m_creature_map)
+    {
+        make_transition(entity);
+    }
 }
 
 std::vector<tile*> world::path_to_target(const std::shared_ptr<creature> creature, tile* target_tile)

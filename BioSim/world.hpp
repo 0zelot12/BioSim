@@ -7,8 +7,9 @@
 #include <unordered_set>
 #include <queue>
 
-#include "image.hpp"
 #include "FastNoise.h"
+
+#include "image.hpp"
 #include "creature.hpp"
 #include "tile.hpp"
 
@@ -43,6 +44,12 @@ public:
 	// Adds creature to the simulation, returns true in case of success
 	bool add_creature(const std::shared_ptr<creature_type>& type, int position);
 
+	// Iterates over all creatures and updates their state in simulation
+	void simulation_step();
+
+	// Updates the state of the creature according to the rest of the simulation
+	void make_transition(std::shared_ptr<creature>& entity);
+
 private:
 
 	//Returns vector with pointer to all adjacent tiles of the inputed tile 
@@ -65,4 +72,9 @@ private:
 
 	// Contains pointers to all creature instances placed on the map 
 	std::vector<std::shared_ptr<creature>> m_creature_map;
+
+	void entity_die(std::shared_ptr<creature>& entity);
+	void plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& terrain_type);
+	void plant_grow(std::shared_ptr<creature>& plant);
+
 };
