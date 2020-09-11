@@ -50,10 +50,17 @@ public:
 	// Updates the state of the creature according to the rest of the simulation
 	void make_transition(std::shared_ptr<creature>& entity);
 
+	//Returns vector with pointer to all adjacent tiles of the inputed tile 
+	std::vector<tile*> get_adjacent_tiles(tile* current_tile, int offset);
+
+	std::vector<tile*> get_tiles_in_range(tile* current_tile, int offset);
+
 private:
 
 	//Returns vector with pointer to all adjacent tiles of the inputed tile 
 	std::vector<tile*> get_adjacent_tiles(tile* current_tile);
+
+
 
 	// Returns the shortes path, by following the predecessors
 	void get_path(tile* arg, std::vector<tile*>* tiles);
@@ -72,6 +79,9 @@ private:
 
 	// Contains pointers to all creature instances placed on the map 
 	std::vector<std::shared_ptr<creature>> m_creature_map;
+
+	int number_of_equal_creatures(const std::shared_ptr<creature>& entity, unsigned int range);
+	int number_of_equal_creatures_on_tile(const std::shared_ptr<creature>& entity, const tile& tile);
 
 	void entity_die(std::shared_ptr<creature>& entity);
 	void plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& terrain_type);

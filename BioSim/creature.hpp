@@ -46,12 +46,11 @@ public:
 	// Returns wether the creature is a land or water creature
 	PROPERTIES entity_type();
 
-	// Updates the state of the creature according to the rest of the simulation
-	void make_transition();
-
 	// Current state in the simualation
 	STATE m_current_state = STATE::NEW;
 
+	// Check whether the two creatures are from the same type
+	static bool have_same_type(const std::shared_ptr<creature>& creature_1, const std::shared_ptr<creature>& creature_2);
 
 
 	std::string m_name;

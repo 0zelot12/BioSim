@@ -92,7 +92,12 @@ void world::make_transition(std::shared_ptr<creature>& entity)
     {
         if ((entity->m_type->life_span() - entity->m_life_span) > entity->m_life_span / 100)
         {
-            //plant_grow();
+            int count = number_of_equal_creatures(entity, 5);
+
+            if (count > 2 && count < 10)
+            {
+                plant_grow(entity);
+            }
         }
 
         else
@@ -100,6 +105,34 @@ void world::make_transition(std::shared_ptr<creature>& entity)
             plant_wait(entity, m_tile_map[entity->m_current_position].m_terrain_type);
         }
     }
+}
+
+int world::number_of_equal_creatures(const std::shared_ptr<creature>& entity, unsigned int distance)
+{
+    int count = 0;
+    auto adjacent_tiles = world::get_adjacent_tiles(&m_tile_map[entity->m_current_position], distance);
+
+    for (auto current_tile : adjacent_tiles)
+    {
+        count += number_of_equal_creatures_on_tile(entity, *current_tile);
+    }
+
+    return count;
+}
+
+int world::number_of_equal_creatures_on_tile(const std::shared_ptr<creature>& entity, const tile& tile)
+{
+    int count = 0;
+
+    for (auto& entity_on_tile : tile.m_creatures_on_tile)
+    {
+        if (creature::have_same_type(entity, entity_on_tile))
+        {
+            count++;
+        }
+    }
+
+    return count;
 }
 
 void world::entity_die(std::shared_ptr<creature>& entity)
@@ -120,6 +153,10 @@ void world::plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& ter
     }
 
     // No state transition needed here
+}
+
+void world::plant_grow(std::shared_ptr<creature>& plant)
+{
 }
 
 const std::map<TERRAIN_TYPE, int> m_terrain_bias_land =
@@ -393,6 +430,71 @@ std::vector<tile*> world::get_adjacent_tiles(tile* current_tile)
     }
 
     return adjacent_tiles;
+}
+
+std::vector<tile*> world::get_adjacent_tiles(tile* current_tile, int offset)
+{
+    std::vector<tile*> adjacent_tiles;
+
+    int base_idx = current_tile->m_tile_map_idx;
+    for (int i = 0; i < offset; i++)
+    {
+        // Get indicees of adjacent tiles
+        int bottom = base_idx - this->m_width - (i * this->m_width),
+            left = base_idx - 1 - i,
+            right = base_idx + 1 + i,
+            upper = base_idx + this->m_width + (i * this->m_width);
+
+        if (left >= 0 && !current_tile->m_is_left_edge && left <= m_tile_map.size() - 1)
+            adjacent_tiles.push_back(&m_tile_map[left]);
+
+        if (right >= 0 && !current_tile->m_is_right_edge && right <= m_tile_map.size() - 1)
+            adjacent_tiles.push_back(&m_tile_map[right]);
+
+        if (upper >= 0 && upper <= m_tile_map.size() - 1)
+            adjacent_tiles.push_back(&m_tile_map[upper]);
+
+        if (bottom >= 0 && bottom <= m_tile_map.size() - 1)
+            adjacent_tiles.push_back(&m_tile_map[bottom]);
+    }
+
+    return adjacent_tiles;
+}
+
+std::vector<tile*> world::get_tiles_in_range(tile* current_tile, int offset)
+{
+    std::vector<tile*> tiles_in_range;
+
+    int base_idx = current_tile->m_tile_map_idx;
+
+    for (int i = 0; i <= offset; i++)
+    {
+        for (int j = offset - i; j >= 0; j--)
+        {
+            // Leave out the start tile
+            if (i == 0 && j == 0)
+                continue;
+
+            int a = base_idx + i - (j * this->m_width);
+
+            int b = base_idx + i + (j * this->m_width);
+
+            int c = base_idx - i - (j * this->m_width);
+
+            int d = base_idx - i + (j * this->m_width);
+
+            tiles_in_range.push_back(&m_tile_map[a]);
+            if (j != 0)
+                tiles_in_range.push_back(&m_tile_map[b]);
+            if (i == 0)
+                continue;
+            tiles_in_range.push_back(&m_tile_map[c]);
+            if (j != 0)
+                tiles_in_range.push_back(&m_tile_map[d]);
+        }
+    }
+
+    return tiles_in_range;
 }
 
 world::world(int x_dim, int y_dim)

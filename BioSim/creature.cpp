@@ -42,6 +42,16 @@ PROPERTIES creature::entity_type()
 	return m_types.entity_type;
 }
 
+bool creature::have_same_type(const std::shared_ptr<creature>& creature_1, const std::shared_ptr<creature>& creature_2)
+{
+	if (creature_1->m_type == creature_2->m_type) {
+		return true;
+	}
+
+	return false;
+}
+
+
 void creature::set_types()
 {
 	for (auto& prop : m_properties)

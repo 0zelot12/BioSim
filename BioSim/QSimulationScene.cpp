@@ -63,6 +63,12 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
                 draw_tile(m_last_cursor_index, false, false);
             }
 
+            auto test = m_model->m_world.get_tiles_in_range(&m_model->m_world.m_tile_map[clicked_index], 5);
+            for (auto& tile : test)
+            {
+                draw_tile(tile->m_tile_map_idx, true, false);
+            }
+
             draw_tile(clicked_index, true, false);
 
             // Remeber tile that has the cursor 
