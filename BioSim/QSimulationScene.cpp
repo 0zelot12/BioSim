@@ -19,6 +19,9 @@ void QSimulationScene::draw_tile(int position, bool is_cursor, bool is_path)
     QPainter painter(&new_pixmap);
     for (auto creature_ptr : creatures)
     {
+        if (creature_ptr->m_current_state == STATE::DEAD)
+            continue;
+
         auto creature_pixmap = m_creature_type_to_pixmap->find(creature_ptr->m_type)->second;
         painter.drawPixmap(0, 0, creature_pixmap);
     }
@@ -38,6 +41,16 @@ void QSimulationScene::draw_tile(int position, bool is_cursor, bool is_path)
     auto scene_items = this->items();
     QGraphicsPixmapItem* scene_item = (QGraphicsPixmapItem*)scene_items[position];
     scene_item->setPixmap(new_pixmap);
+}
+
+void QSimulationScene::draw_map()
+{
+    auto& map = m_model->m_world.m_tile_map;
+
+    for (int i = 0; i < map.size(); i++)
+    {
+        draw_tile(i, false, false);
+    }
 }
 
 int QSimulationScene::get_current_cursor_position()
@@ -63,11 +76,11 @@ void QSimulationScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
                 draw_tile(m_last_cursor_index, false, false);
             }
 
-            auto test = m_model->m_world.get_tiles_in_range(&m_model->m_world.m_tile_map[clicked_index], 5);
-            for (auto& tile : test)
-            {
-                draw_tile(tile->m_tile_map_idx, true, false);
-            }
+            //auto test = m_model->m_world.get_tiles_in_range(&m_model->m_world.m_tile_map[clicked_index], 5);
+            //for (auto& tile : test)
+            //{
+            //    draw_tile(tile->m_tile_map_idx, true, false);
+            //}
 
             draw_tile(clicked_index, true, false);
 

@@ -16,7 +16,7 @@ creature_type::creature_type(const std::string& name, unsigned int staerke, unsi
 	m_image_path(bild_pfad),
 	m_strength	(staerke),
 	m_speed		(geschwindigkeit),
-	m_life_span	(lebensdauer)
+	m_max_health	(lebensdauer)
 
 {
 	attributes::set_eigenschaften(eigenschaften, m_properties_list);
@@ -34,19 +34,19 @@ std::string creature_type::image_path() const
 	return m_image_path;
 }
 
-unsigned int creature_type::strength() const
+int creature_type::strength() const
 {
 	return m_strength;
 }
 
-unsigned int creature_type::speed() const
+int creature_type::speed() const
 {
 	return m_speed;
 }
 
-unsigned int creature_type::life_span() const
+int creature_type::max_health() const
 {
-	return m_life_span;
+	return m_max_health;
 }
 
 std::vector<PROPERTIES> creature_type::property_list() const

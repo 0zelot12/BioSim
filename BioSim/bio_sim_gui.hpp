@@ -4,6 +4,7 @@
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsPixmapItem>
+#include <qtimer.h>
 
 #include <map>
 #include <iostream> 
@@ -42,6 +43,8 @@ private:
 
     // Qt GUI class 
     Ui::bio_sim_guiClass m_ui;
+
+    QTimer m_gui_timer;
 
     // Presenter get data from the model and passes it to the GUI 
     bio_sim_presenter m_presenter;

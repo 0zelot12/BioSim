@@ -118,21 +118,19 @@ catch (const std::exception& e)
 
 void bio_sim_gui::on_ctrl_start_btn_clicked()
 {
-        QMessageBox msg_box;
-        msg_box.setText("Start button clicked");
-        msg_box.exec();
+    connect(&m_gui_timer, &QTimer::timeout, this, QOverload<>::of(&bio_sim_gui::on_ctrl_step_btn_clicked));
+    m_gui_timer.start(1000);
 }
 
 void bio_sim_gui::on_ctrl_stop_btn_clicked()
 {
-    QMessageBox msg_box;
-    msg_box.setText("Stop button clicked");
-    msg_box.exec();
+    m_gui_timer.stop();
 }
 
 void bio_sim_gui::on_ctrl_step_btn_clicked()
 {
     this->m_presenter.model.m_world.simulation_step();
+    m_simulation_scene.draw_map();
 }
 
 void bio_sim_gui::on_place_creature_btn_clicked()
@@ -165,7 +163,7 @@ void bio_sim_gui::fill_creature_selection(int idx)
     m_ui.creature_choice_box->setCurrentIndex(idx);
 
     auto creatures = m_presenter.m_creature_types();
-    m_ui.lifespan_edit->setText(QString::number(creatures[idx]->life_span()));
+    m_ui.lifespan_edit->setText(QString::number(creatures[idx]->max_health()));
     m_ui.strength_edit->setText(QString::number(creatures[idx]->strength()));
     m_ui.speed_edit->setText(QString::number(creatures[idx]->speed()));
 

@@ -82,21 +82,37 @@ TERRAIN_TYPE world::float_to_terrain_type(float input)
 }
 
 void world::make_transition(std::shared_ptr<creature>& entity)
-{
-    if (entity->m_life_span <= 0)
-    {
-        entity_die(entity);
-    }
-
+{ 
     if (entity->entity_type() == PROPERTIES::PFLANZE)
     {
-        if ((entity->m_type->life_span() - entity->m_life_span) > entity->m_life_span / 100)
+
+        if (entity->m_current_state == STATE::NEW)
+        {
+            entity->m_current_state = STATE::WAIT;
+        }
+
+        if (entity->steps_since_last_event > entity->m_health / 100)
         {
             int count = number_of_equal_creatures(entity, 5);
 
+            //TODO: Check same tile as the creature sits on
+
             if (count > 2 && count < 10)
             {
-                plant_grow(entity);
+                if (plant_grow(entity))
+                {
+                    entity->steps_since_last_event = 0;
+                }
+
+                else
+                {
+                    plant_wait(entity, m_tile_map[entity->m_current_position].m_terrain_type);
+                }
+            }
+
+            else
+            {
+                plant_wait(entity, m_tile_map[entity->m_current_position].m_terrain_type);
             }
         }
 
@@ -105,12 +121,88 @@ void world::make_transition(std::shared_ptr<creature>& entity)
             plant_wait(entity, m_tile_map[entity->m_current_position].m_terrain_type);
         }
     }
+
+    if (entity->entity_type() == PROPERTIES::TIER)
+    {
+        if (entity->m_current_state == STATE::NEW)
+        {
+            entity->m_current_state = STATE::WANDER;
+        }
+
+        if (entity->m_current_state == STATE::WANDER)
+        {
+            //auto tiles_in_range = get_tiles_in_range(&m_tile_map[entity->m_current_position], 10);
+            //std::vector<std::shared_ptr<creature>> beute;
+
+            //for (auto& tile : tiles_in_range)
+            //{
+            //    if (tile->m_creatures_on_tile.size() != 0)
+            //    {
+            //        beute = tile->m_creatures_on_tile;
+            //    }
+            //}
+
+            //if (entity->m_health < 0.6 * entity->m_type->max_health() && beute.size() > 0)
+            //{
+            //    entity->currrent_target = beute[0];
+            //    auto tiles = path_to_target(entity, &m_tile_map[entity->currrent_target->m_current_position]);
+            //    for (auto& tile : tiles) 
+            //    {
+            //        entity->m_path_to_current_target.push_back(tile->m_tile_map_idx);
+            //    }
+            //    entity->m_current_state = STATE::HUNT;
+            //    animal_hunt(entity);
+            //    return;
+            //}
+
+            if (entity->m_path_to_current_target.empty())
+            {
+                animal_set_wander_target(entity);
+            }
+
+            animal_make_wander_step(entity);
+        }
+
+        //if (entity->m_current_state == STATE::HUNT)
+        //{
+        //    bool is_attackable;
+        //    auto adjacent_tiles = get_adjacent_tiles_new(&m_tile_map[entity->m_current_position]);
+
+        //    for (auto& tile : adjacent_tiles)
+        //    {
+        //        if (std::find(tile->m_creatures_on_tile.begin(), tile->m_creatures_on_tile.end(), entity->currrent_target) != tile->m_creatures_on_tile.end())
+        //        {
+        //            entity->m_current_state == STATE::ATTACK;
+        //            is_attackable = true;
+        //            break;
+        //        }
+        //    }
+        //    
+
+        //}
+
+        else if (entity->m_current_state == STATE::REST)
+        {
+            animal_rest(entity);
+        }
+
+    }
+}
+
+tile* world::idx_to_tile(int idx)
+{
+    if (idx > 0 && m_tile_map.size() > idx)
+    {
+        return &m_tile_map[idx];
+    }
+
+    return nullptr;
 }
 
 int world::number_of_equal_creatures(const std::shared_ptr<creature>& entity, unsigned int distance)
 {
     int count = 0;
-    auto adjacent_tiles = world::get_adjacent_tiles(&m_tile_map[entity->m_current_position], distance);
+    auto adjacent_tiles = world::get_tiles_in_range(&m_tile_map[entity->m_current_position], distance);
 
     for (auto current_tile : adjacent_tiles)
     {
@@ -144,19 +236,154 @@ void world::plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& ter
 {
     if (terrain_type == TERRAIN_TYPE::DEEP_WATER || terrain_type == TERRAIN_TYPE::SNOW || terrain_type == TERRAIN_TYPE::STONE)
     {
-        plant->m_life_span -= 25;
+        plant->m_health -= 25;
     }
 
     else
     {
-        plant->m_life_span -= 10;
+        plant->m_health -= 10;
     }
 
-    // No state transition needed here
+    plant->steps_since_last_event++;
 }
 
-void world::plant_grow(std::shared_ptr<creature>& plant)
+bool world::plant_grow(std::shared_ptr<creature>& plant)
 {
+    auto tiles_in_range = get_tiles_in_range(&m_tile_map[plant->m_current_position], 5);
+    std::vector<tile*> suitable_tiles;
+    for (auto& tile : tiles_in_range)
+    {
+        if (is_suitable_tile(plant, *tile) && number_of_equal_creatures_on_tile(plant, *tile) == 0)
+            suitable_tiles.push_back(tile);
+    }
+
+    if (suitable_tiles.size() > 0)
+    {
+        for (int i = 0; i < 1; i++)
+        {
+            // Obtain a random number from hardware
+            std::random_device rd; 
+            // Seed the generator
+            std::mt19937 gen(rd()); 
+            // Define the range
+            std::uniform_int_distribution<> distr(0, suitable_tiles.size() - 1); 
+
+            //add_creature(plant->m_type, suitable_tiles[distr(gen)]->m_tile_map_idx);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void world::animal_set_wander_target(std::shared_ptr<creature>& animal)
+{
+    auto tiles_in_range = get_tiles_in_range(&m_tile_map[animal->m_current_position], 10);
+
+    double range = (animal->m_speed * 0.5) / 100;
+
+    // Obtain a random number from hardware
+    std::random_device rd;
+    // Seed the generator
+    std::mt19937 gen(rd());
+    // Define the range
+    std::uniform_int_distribution<> distr(0, tiles_in_range.size() - 1);
+
+    auto path_tiles = path_to_target(&m_tile_map[animal->m_current_position], tiles_in_range[distr(gen)]);
+
+    if (path_tiles.size() == 0)
+        return;
+
+    path_tiles.pop_back();
+
+    animal->m_path_to_current_target = get_path_indicees(path_tiles);
+
+    //if (true)
+    //{
+    //    for (auto& tile : path_tiles)
+    //    {
+    //        m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+    //        animal->m_current_position = tile->m_tile_map_idx;
+    //        m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+    //        animal->m_health -= 2;
+    //    }
+    //}
+
+    //animal->m_current_state = STATE::REST;
+    //animal->steps_since_last_event = 0;
+}
+
+void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
+{
+    if (animal->m_path_to_current_target.empty())
+    {
+        animal->m_current_state = STATE::REST;
+        animal->steps_since_last_event = 0;
+        return;
+    }
+
+    m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+    animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
+    m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+    animal->m_health -= 2;
+    animal->m_path_to_current_target.pop_back();
+}
+
+void world::animal_rest(std::shared_ptr<creature>& animal)
+{
+    if (animal->steps_since_last_event >= (animal->m_health / animal->m_type->max_health()) * 5)
+    {
+        animal->m_current_state = STATE::WANDER;
+        return;
+    }
+
+    animal->m_health -= 5;
+    animal->steps_since_last_event++;
+}
+
+void world::animal_hunt(std::shared_ptr<creature>& animal)
+{
+    auto adjacent_tiles = get_adjacent_tiles_new(&m_tile_map[animal->m_current_position]);
+
+    ////if (path_tiles.size() == 0)
+    ////    return;
+
+    //path_tiles.pop_back();
+    //std::reverse(path_tiles.begin(), path_tiles.end());
+
+    //for (auto& tile : adjacent_tiles)
+    //{  
+    //    if (std::find(tile->m_creatures_on_tile.begin(), tile->m_creatures_on_tile.end(), animal->currrent_target) != tile->m_creatures_on_tile.end())
+    //    {
+    //        animal->m_current_state == STATE::ATTACK;
+    //        break;
+    //    }
+    //}
+
+    //animal_attack(animal);
+}
+
+void world::animal_attack(std::shared_ptr<creature>& animal)
+{
+    if (animal->m_health == animal->m_type->max_health())
+    {
+        animal->m_current_state = STATE::REST;
+        return;
+    }
+
+    if (animal->currrent_target->m_health <= 0)
+    {
+        animal->m_current_state = STATE::REST;
+        animal->currrent_target->m_current_state = STATE::DEAD;
+        animal->currrent_target = NULL;
+        return;
+    }
+
+    animal->currrent_target->m_health -= animal->m_strength;
+    animal->m_health += animal->m_strength / 2;
+
+    animal_attack(animal);
 }
 
 const std::map<TERRAIN_TYPE, int> m_terrain_bias_land =
@@ -214,7 +441,7 @@ int world::get_terrain_bias(TERRAIN_TYPE terrain_type, PROPERTIES type)
 
 bool world::add_creature(const std::shared_ptr<creature_type>& type, int position)
 {
-    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), type->life_span(), 
+    std::shared_ptr<creature> new_creature = std::make_shared<creature>(type->strength(), type->speed(), type->max_health(), 
                                                                             position, type->name(), type->property_list(), type);
 
     TERRAIN_TYPE terrain_type = m_tile_map[new_creature->m_current_position].m_terrain_type;
@@ -240,10 +467,25 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
 
 void world::simulation_step()
 {
-    for (auto& entity : m_creature_map)
+    auto creature_list = m_creature_map; 
+
+    for (auto& entity : creature_list)
     {
-        make_transition(entity);
+        if (entity->m_health <= 0)
+        {
+            entity_die(entity);
+            continue;
+        }
+
+        if (entity->m_current_state != STATE::DEAD)
+        {
+            make_transition(entity);
+        }
     }
+
+    // Löschen nach 10 Schritten 
+
+    simulation_steps_total++;
 }
 
 std::vector<tile*> world::path_to_target(const std::shared_ptr<creature> creature, tile* target_tile)
@@ -432,6 +674,35 @@ std::vector<tile*> world::get_adjacent_tiles(tile* current_tile)
     return adjacent_tiles;
 }
 
+bool world::is_in_range(int tile_map_idx)
+{
+    return tile_map_idx >= 0 && (m_tile_map.size() - 1 >= tile_map_idx);
+}
+
+int world::mod_idx(int tile_idx)
+{
+    return tile_idx % this->m_height;
+}
+
+bool world::is_suitable_tile(std::shared_ptr<creature> type, const tile& tile)
+{
+    switch (type->entity_type())
+    {
+    case PROPERTIES::LANDBEWOHNER:
+        if (tile.m_terrain_type == TERRAIN_TYPE::DEEP_WATER || tile.m_terrain_type == TERRAIN_TYPE::SHALLOW_WATER)
+            return false;
+        break;
+    case PROPERTIES::WASSERBEWOHNER:
+        if (tile.m_terrain_type == TERRAIN_TYPE::EARTH || tile.m_terrain_type == TERRAIN_TYPE::SAND || tile.m_terrain_type == TERRAIN_TYPE::SNOW || tile.m_terrain_type == TERRAIN_TYPE::STONE)
+            return false;
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
 std::vector<tile*> world::get_adjacent_tiles(tile* current_tile, int offset)
 {
     std::vector<tile*> adjacent_tiles;
@@ -461,6 +732,77 @@ std::vector<tile*> world::get_adjacent_tiles(tile* current_tile, int offset)
     return adjacent_tiles;
 }
 
+std::vector<tile*> world::get_adjacent_tiles_new(tile* current_tile)
+{
+    std::vector<tile*> adjacent_tiles;
+
+    // A tile can have a maximum of 8 adjacent tiles
+    adjacent_tiles.reserve(8);
+
+    int base_idx = current_tile->m_tile_map_idx;
+
+    // Get indicees of adjacent tiles
+    int bottom_left = base_idx - this->m_width - 1,
+        bottom = base_idx - this->m_width,
+        bottom_right = base_idx - this->m_width + 1,
+        left = base_idx - 1,
+        right = base_idx + 1,
+        upper_left = base_idx + this->m_width - 1,
+        upper = base_idx + this->m_width,
+        upper_right = base_idx + this->m_width + 1;
+
+
+    // Creatures can't take diagonal paths
+    bottom_left = -1;
+    bottom_right = -1;
+    upper_left = -1;
+    upper_right = -1;
+
+    // If a tile is on the edge, it has no adjacent tiles in certain positions
+    if (current_tile->m_is_right_edge)
+    {
+        right = -1;
+        bottom_right = -1;
+        upper_right = -1;
+    }
+
+    if (current_tile->m_is_left_edge)
+    {
+        left = -1;
+        upper_left = -1;
+        bottom_left = -1;
+    }
+
+    std::vector<int> indicees =
+    { bottom_left,
+                                    bottom,
+                                    bottom_right,
+                                    left,
+                                    right,
+                                    upper_left,
+                                    upper,
+                                    upper_right
+    };
+
+
+
+    // Some tiles doesn't have adjacent tiles in all positions, so set missing to nullptr to skip them later
+    for (auto index : indicees)
+    {
+        if (index > (this->m_tile_map.size() - 1) || index < 0)
+        {
+            //adjacent_tiles.push_back(nullptr);
+        }
+
+        else
+        {
+            adjacent_tiles.push_back(&this->m_tile_map[index]);
+        }
+    }
+
+    return adjacent_tiles;
+}
+
 std::vector<tile*> world::get_tiles_in_range(tile* current_tile, int offset)
 {
     std::vector<tile*> tiles_in_range;
@@ -482,19 +824,44 @@ std::vector<tile*> world::get_tiles_in_range(tile* current_tile, int offset)
             int c = base_idx - i - (j * this->m_width);
 
             int d = base_idx - i + (j * this->m_width);
+            
+            if (is_in_range(a) && mod_idx(a) >= mod_idx(base_idx))
+                tiles_in_range.push_back(&m_tile_map[a]);
 
-            tiles_in_range.push_back(&m_tile_map[a]);
-            if (j != 0)
+            if (j != 0 && is_in_range(b) && mod_idx(b) >= mod_idx(base_idx))
                 tiles_in_range.push_back(&m_tile_map[b]);
+
             if (i == 0)
                 continue;
-            tiles_in_range.push_back(&m_tile_map[c]);
-            if (j != 0)
+
+            if (is_in_range(c) && mod_idx(c) <= mod_idx(base_idx))
+                tiles_in_range.push_back(&m_tile_map[c]);
+
+            if (j != 0 && is_in_range(d) && mod_idx(d) <= mod_idx(base_idx))
                 tiles_in_range.push_back(&m_tile_map[d]);
         }
     }
 
     return tiles_in_range;
+}
+
+std::vector<int> world::get_path_indicees(const std::vector<tile*>& path_tiles)
+{
+    std::vector<int> indicees;
+    indicees.reserve(path_tiles.size());
+
+    for (auto& tile : path_tiles) 
+    {
+        indicees.push_back(tile->m_tile_map_idx);
+    }
+
+    return indicees;
+}
+
+std::vector<int> world::path_to_target(const std::shared_ptr<creature> creature_1, const std::shared_ptr<creature> creature_2)
+{
+    auto path_tiles = path_to_target(idx_to_tile(creature_1->m_current_position), idx_to_tile(creature_2->m_current_position));
+    return get_path_indicees(path_tiles);
 }
 
 world::world(int x_dim, int y_dim)

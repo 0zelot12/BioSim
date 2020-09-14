@@ -24,6 +24,8 @@ public:
     // Draw tile with all contents 
     void draw_tile(int position, bool is_cursor, bool is_path);
 
+    void draw_map();
+
     // Returns the current index of the cursor
     int get_current_cursor_position();
 

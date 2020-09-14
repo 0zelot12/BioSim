@@ -61,5 +61,9 @@ public:
 	// Position on map in 2D coordinates
 	POINT_2D m_pos;
 
+	void delete_creature_from_tile(const std::shared_ptr<creature>);
+
+	void add_creature_to_tile(std::shared_ptr<creature> entity);
+
 };
 

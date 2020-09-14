@@ -12,7 +12,7 @@ creature::creature(unsigned int strength, unsigned int speed, unsigned int life_
 	:
 	m_strength(strength),
 	m_speed(speed),
-	m_life_span(life_span),
+	m_health(life_span),
 	m_name(name),
 	m_properties(properties),
 	m_current_position(position),

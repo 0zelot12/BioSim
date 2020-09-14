@@ -31,15 +31,15 @@ public:
 
 	std::string	name() const;
 	std::string	image_path()	const;
-	unsigned int strength() const;
-	unsigned int speed() const;
-	unsigned int life_span() const;
+	int strength() const;
+	int speed() const;
+	int max_health() const;
 	std::vector<PROPERTIES> property_list() const;
 
 private:
 
 	std::string m_name, m_properties, m_image_path;
-	unsigned int m_strength, m_speed, m_life_span;
+	int m_strength, m_speed, m_max_health;
 
 	// Vector containing the converted content of eigentschaften
 	std::vector<PROPERTIES> m_properties_list;

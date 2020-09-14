@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include <random>
 #include <memory>
 #include <algorithm>
 #include <unordered_set>
@@ -52,15 +53,26 @@ public:
 
 	//Returns vector with pointer to all adjacent tiles of the inputed tile 
 	std::vector<tile*> get_adjacent_tiles(tile* current_tile, int offset);
+	std::vector<tile*> get_adjacent_tiles_new(tile* current_tile);
 
 	std::vector<tile*> get_tiles_in_range(tile* current_tile, int offset);
+
+	// Converts vector of tiles to vector of corresponding indicees 
+	std::vector<int> get_path_indicees(const std::vector<tile*>& path_tiles);
+
+	// Calculates optimal path between two tiles using A* algorithm
+	std::vector<int> path_to_target(const std::shared_ptr<creature> creature_1, const std::shared_ptr<creature> creature_2);
+
+	int simulation_steps_total = 0;
 
 private:
 
 	//Returns vector with pointer to all adjacent tiles of the inputed tile 
 	std::vector<tile*> get_adjacent_tiles(tile* current_tile);
 
-
+	bool is_in_range(int tile_map_idx);
+	int mod_idx(int tile_idx);
+	bool is_suitable_tile(std::shared_ptr<creature> type, const tile& tile);
 
 	// Returns the shortes path, by following the predecessors
 	void get_path(tile* arg, std::vector<tile*>* tiles);
@@ -80,11 +92,21 @@ private:
 	// Contains pointers to all creature instances placed on the map 
 	std::vector<std::shared_ptr<creature>> m_creature_map;
 
+	// Returns tile at the given index
+	tile* idx_to_tile(int idx);
+
 	int number_of_equal_creatures(const std::shared_ptr<creature>& entity, unsigned int range);
 	int number_of_equal_creatures_on_tile(const std::shared_ptr<creature>& entity, const tile& tile);
 
 	void entity_die(std::shared_ptr<creature>& entity);
+
 	void plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& terrain_type);
-	void plant_grow(std::shared_ptr<creature>& plant);
+	bool plant_grow(std::shared_ptr<creature>& plant);
+
+	void animal_set_wander_target(std::shared_ptr<creature>& animal);
+	void animal_make_wander_step(std::shared_ptr<creature>& animal);
+	void animal_rest(std::shared_ptr<creature>& animal);
+	void animal_hunt(std::shared_ptr<creature>& animal);
+	void animal_attack(std::shared_ptr<creature>& animal);
 
 };
