@@ -58,6 +58,7 @@ public:
 	static bool have_same_type(const std::shared_ptr<creature>& creature_1, const std::shared_ptr<creature>& creature_2);
 
 	int steps_since_last_event = 0;
+	int steps_since_last_replication = 0;
 
 	double x_position, y_position;
 	

@@ -44,7 +44,7 @@ PROPERTIES creature::entity_type()
 
 bool creature::have_same_type(const std::shared_ptr<creature>& creature_1, const std::shared_ptr<creature>& creature_2)
 {
-	if (creature_1->m_type == creature_2->m_type) {
+	if (creature_1->m_type == creature_2->m_type && creature_1->m_current_state != STATE::DEAD && creature_2->m_current_state != STATE::DEAD) {
 		return true;
 	}
 

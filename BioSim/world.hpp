@@ -45,6 +45,9 @@ public:
 	// Adds creature to the simulation, returns true in case of success
 	bool add_creature(const std::shared_ptr<creature_type>& type, int position);
 
+	// Adds creature to the simulation, returns true in case of success
+	bool add_creature(const std::shared_ptr<creature_type>& type, int position, double health);
+
 	// Iterates over all creatures and updates their state in simulation
 	void simulation_step();
 
@@ -106,6 +109,13 @@ private:
 	void animal_set_wander_target(std::shared_ptr<creature>& animal);
 	void animal_make_wander_step(std::shared_ptr<creature>& animal);
 	void animal_rest(std::shared_ptr<creature>& animal);
+	void animal_mate(std::shared_ptr<creature>& animal);
+
+	bool mate_transition(std::shared_ptr<creature>& animal);
+	bool hunt_transition(std::shared_ptr<creature>& animal);
+
+
+
 	void animal_hunt(std::shared_ptr<creature>& animal);
 	void animal_attack(std::shared_ptr<creature>& animal);
 
