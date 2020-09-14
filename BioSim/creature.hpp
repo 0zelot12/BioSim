@@ -59,7 +59,7 @@ public:
 
 	int steps_since_last_event = 0;
 
-	double x_position, y_postion;
+	double x_position, y_position;
 	
 	// Current target that creature trys to attack, null in case of no target
 	std::shared_ptr<creature> currrent_target;

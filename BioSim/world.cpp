@@ -295,6 +295,7 @@ void world::animal_set_wander_target(std::shared_ptr<creature>& animal)
     if (path_tiles.size() == 0)
         return;
 
+    // Remove tile where creature currently sits, because not needed
     path_tiles.pop_back();
 
     animal->m_path_to_current_target = get_path_indicees(path_tiles);
@@ -314,26 +315,12 @@ void world::animal_set_wander_target(std::shared_ptr<creature>& animal)
     //animal->steps_since_last_event = 0;
 }
 
-void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
-{
-    if (animal->m_path_to_current_target.empty())
-    {
-        animal->m_current_state = STATE::REST;
-        animal->steps_since_last_event = 0;
-        return;
-    }
-
-    m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
-    animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
-    m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
-    animal->m_health -= 2;
-    animal->m_path_to_current_target.pop_back();
-}
-
 void world::animal_rest(std::shared_ptr<creature>& animal)
 {
-    if (animal->steps_since_last_event >= (animal->m_health / animal->m_type->max_health()) * 5)
+    double waiting_threshold = ((double)animal->m_health / (double)animal->m_type->max_health()) * 5;
+    if (animal->steps_since_last_event >= waiting_threshold)
     {
+        animal->steps_since_last_event = 0;
         animal->m_current_state = STATE::WANDER;
         return;
     }
@@ -458,6 +445,9 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
     {
         return false;
     }
+
+    new_creature->x_position = m_tile_map[position].m_pos.x;
+    new_creature->y_position = m_tile_map[position].m_pos.y;
 
     m_creature_map.push_back(new_creature);
     m_tile_map[position].m_creatures_on_tile.push_back(new_creature);
@@ -897,6 +887,86 @@ world::world(int x_dim, int y_dim)
 
             if (lin_idx % y_dim == y_dim - 1)
                 m_tile_map[lin_idx].m_is_right_edge = true;
+        }
+    }
+}
+
+void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
+{
+    // Animal has reached its target
+    if (animal->m_path_to_current_target.size() == 1)
+    {
+        animal->m_current_state = STATE::REST;
+        animal->steps_since_last_event = 0;
+    }
+
+    double range = (animal->m_speed * 0.5) / 100;
+    int terrain_bias = m_terrain_bias_land.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+    double effective_range = range / terrain_bias;
+
+    // Next tile is in y direction
+    if (mod_idx(animal->m_current_position) == mod_idx(animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]))
+    {
+
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->y_position)
+        {
+            animal->y_position += effective_range;
+
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->y_position)
+            {
+                m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+                animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
+                m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+                animal->m_health -= 2;
+                animal->m_path_to_current_target.pop_back();
+            }
+        }
+
+        else
+        {
+            animal->y_position -= effective_range;
+
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+            {
+                m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+                animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
+                m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+                animal->m_health -= 2;
+                animal->m_path_to_current_target.pop_back();
+            }
+        }
+    }
+
+    else 
+    {
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+        {
+            animal->x_position += effective_range;
+
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->x_position)
+            {
+                m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+                animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
+                m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+                animal->x_position = m_tile_map[animal->m_current_position].m_pos.x;
+                animal->y_position = m_tile_map[animal->m_current_position].m_pos.y;
+                animal->m_health -= 2;
+                animal->m_path_to_current_target.pop_back();
+            }
+        }
+
+        else
+        {
+            animal->x_position -= effective_range;
+
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+            {
+                m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
+                animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
+                m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
+                animal->m_health -= 2;
+                animal->m_path_to_current_target.pop_back();
+            }
         }
     }
 }

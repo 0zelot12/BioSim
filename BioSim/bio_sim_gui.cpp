@@ -118,6 +118,8 @@ catch (const std::exception& e)
 
 void bio_sim_gui::on_ctrl_start_btn_clicked()
 {
+    m_ui.ctrl_step_btn->setEnabled(false);
+    m_ui.ctrl_start_btn->setEnabled(false);
     connect(&m_gui_timer, &QTimer::timeout, this, QOverload<>::of(&bio_sim_gui::on_ctrl_step_btn_clicked));
     m_gui_timer.start(1000);
 }
@@ -125,6 +127,8 @@ void bio_sim_gui::on_ctrl_start_btn_clicked()
 void bio_sim_gui::on_ctrl_stop_btn_clicked()
 {
     m_gui_timer.stop();
+    m_ui.ctrl_step_btn->setEnabled(true);
+    m_ui.ctrl_start_btn->setEnabled(true);
 }
 
 void bio_sim_gui::on_ctrl_step_btn_clicked()
