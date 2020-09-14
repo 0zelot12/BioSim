@@ -32,6 +32,9 @@ m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terra
     // Get pixmap of path symbol
     std::shared_ptr<image> path_tga = image::load_image(".\\graphics\\environment\\path\\path.tga");
 
+    // Get pixmap of path symbol
+    std::shared_ptr<image> dead_tga = image::load_image(".\\graphics\\environment\\dead\\dead.tga");
+
     // Load the creature images and convert them to QPixmap, then put them to the map
     for (int i = 0; i < this->m_presenter.m_creature_types().size(); i++)
     {
@@ -102,6 +105,13 @@ m_tga_terrain_images(image::load_terrain_images(".\\graphics\\environment\\terra
             path_tga->height(),
             QImage::Format_ARGB32
         ).mirrored());
+
+    m_simulation_scene.m_dead_pixmap = QPixmap::fromImage(QImage(
+        (unsigned char*)dead_tga->pixel_data().data(),
+        dead_tga->width(),
+        dead_tga->height(),
+        QImage::Format_ARGB32
+    ).mirrored());
     
     // Show scene
     m_ui.simulation_area->setScene(&m_simulation_scene);

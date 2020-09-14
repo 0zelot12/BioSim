@@ -19,8 +19,12 @@ void QSimulationScene::draw_tile(int position, bool is_cursor, bool is_path)
     QPainter painter(&new_pixmap);
     for (auto creature_ptr : creatures)
     {
-        if (creature_ptr->m_current_state == STATE::DEAD)
+        if (creature_ptr->m_current_state == STATE::DEAD && creature_ptr->entity_type() != PROPERTIES::PFLANZE)
+        {
+            auto dead_pixmap = this->m_dead_pixmap;
+            painter.drawPixmap(0, 0, dead_pixmap);
             continue;
+        }
 
         auto creature_pixmap = m_creature_type_to_pixmap->find(creature_ptr->m_type)->second;
         painter.drawPixmap(0, 0, creature_pixmap);

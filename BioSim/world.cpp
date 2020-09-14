@@ -121,7 +121,7 @@ void world::make_transition(std::shared_ptr<creature>& entity)
             entity->m_current_state = STATE::WAIT;
         }
 
-        if (entity->steps_since_last_event > entity->m_health / 100)
+        if (entity->m_steps_since_last_rest > entity->m_health / 100)
         {
             int count = number_of_equal_creatures(entity, 5);
 
@@ -131,7 +131,7 @@ void world::make_transition(std::shared_ptr<creature>& entity)
             {
                 if (plant_grow(entity))
                 {
-                    entity->steps_since_last_event = 0;
+                    entity->m_steps_since_last_rest = 0;
                 }
 
                 else
@@ -168,7 +168,7 @@ void world::make_transition(std::shared_ptr<creature>& entity)
 
             else
             {
-                entity->steps_since_last_replication++;
+                entity->m_steps_since_last_replication++;
             }
 
             if (hunt_transition(entity))
@@ -187,7 +187,7 @@ void world::make_transition(std::shared_ptr<creature>& entity)
         else if (entity->m_current_state == STATE::MATE)
         {
             animal_mate(entity);
-            entity->steps_since_last_replication = 0;
+            entity->m_steps_since_last_replication = 0;
             entity->m_current_state = STATE::WANDER;
         }
 
@@ -263,7 +263,7 @@ void world::plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& ter
         plant->m_health -= 10;
     }
 
-    plant->steps_since_last_event++;
+    plant->m_steps_since_last_rest++;
 }
 
 bool world::plant_grow(std::shared_ptr<creature>& plant)
@@ -287,7 +287,7 @@ bool world::plant_grow(std::shared_ptr<creature>& plant)
             // Define the range
             std::uniform_int_distribution<> distr(0, suitable_tiles.size() - 1); 
 
-            //add_creature(plant->m_type, suitable_tiles[distr(gen)]->m_tile_map_idx);
+            add_creature(plant->m_type, suitable_tiles[distr(gen)]->m_tile_map_idx);
         }
 
         return true;
@@ -299,8 +299,6 @@ bool world::plant_grow(std::shared_ptr<creature>& plant)
 void world::animal_set_wander_target(std::shared_ptr<creature>& animal)
 {
     auto tiles_in_range = get_tiles_in_range(&m_tile_map[animal->m_current_position], 10);
-
-    double range = (animal->m_speed * 0.5) / 100;
 
     // Obtain a random number from hardware
     std::random_device rd;
@@ -323,15 +321,15 @@ void world::animal_set_wander_target(std::shared_ptr<creature>& animal)
 void world::animal_rest(std::shared_ptr<creature>& animal)
 {
     double waiting_threshold = ((double)animal->m_health / (double)animal->m_type->max_health()) * 5;
-    if (animal->steps_since_last_event >= waiting_threshold)
+    if (animal->m_steps_since_last_rest >= waiting_threshold)
     {
-        animal->steps_since_last_event = 0;
+        animal->m_steps_since_last_rest = 0;
         animal->m_current_state = STATE::WANDER;
         return;
     }
 
     animal->m_health -= 5;
-    animal->steps_since_last_event++;
+    animal->m_steps_since_last_rest++;
 }
 
 void world::animal_mate(std::shared_ptr<creature>& animal)
@@ -364,7 +362,7 @@ void world::animal_mate(std::shared_ptr<creature>& animal)
 
 bool world::mate_transition(std::shared_ptr<creature>& animal)
 {
-    if (animal->m_health > (0.5 * animal->m_type->max_health()) && animal->steps_since_last_replication > (animal->m_health / 50))
+    if (animal->m_health > (0.5 * animal->m_type->max_health()) && animal->m_steps_since_last_replication > (animal->m_health / 50))
     {
         auto creatures_in_rng = number_of_equal_creatures(animal, 3);
 
@@ -392,9 +390,16 @@ bool world::hunt_transition(std::shared_ptr<creature>& animal)
             {
                 for (auto& prey : tile->m_creatures_on_tile)
                 {
-                    if (animal->m_types.prey_type == PROPERTIES::FLEISCHFRESSER && prey->m_types.entity_type == PROPERTIES::TIER && prey->m_current_state != STATE::DEAD)
+                    if (animal->m_types.prey_type == PROPERTIES::FLEISCHFRESSER && prey->m_types.entity_type == PROPERTIES::TIER && prey->m_current_state != STATE::DEAD && animal->terrain_type() == tile->m_creatures_on_tile[0]->terrain_type())
                     {
-                        animal->currrent_target = tile->m_creatures_on_tile[0];
+                        animal->m_currrent_target = tile->m_creatures_on_tile[0];
+                        animal->m_current_state = STATE::HUNT;
+                        return true;
+                    }
+
+                    else if (animal->m_types.prey_type == PROPERTIES::PFLANZENFRESSER && prey->m_types.entity_type == PROPERTIES::PFLANZE && prey->m_current_state != STATE::DEAD && animal->terrain_type() == tile->m_creatures_on_tile[0]->terrain_type())
+                    {
+                        animal->m_currrent_target = tile->m_creatures_on_tile[0];
                         animal->m_current_state = STATE::HUNT;
                         return true;
                     }
@@ -409,7 +414,7 @@ bool world::hunt_transition(std::shared_ptr<creature>& animal)
 
 void world::animal_hunt(std::shared_ptr<creature>& animal)
 {
-    animal->m_path_to_current_target = path_to_target(animal, animal->currrent_target);
+    animal->m_path_to_current_target = path_to_target(animal, animal->m_currrent_target);
 
     // Remove tile where creature currently sits, because not needed
     animal->m_path_to_current_target.pop_back();
@@ -422,7 +427,19 @@ void world::animal_hunt(std::shared_ptr<creature>& animal)
     }
 
     double range = ((double)animal->m_speed * 1.0) / 100;
-    int terrain_bias = m_terrain_bias_land.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+
+    int terrain_bias;
+
+    if (animal->terrain_type() == PROPERTIES::LANDBEWOHNER)
+    {
+        terrain_bias = m_terrain_bias_land.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+    }
+
+    else
+    {
+        terrain_bias = m_terrain_bias_water.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+    }
+
     double effective_range = range / terrain_bias;
 
     // No path available
@@ -433,11 +450,11 @@ void world::animal_hunt(std::shared_ptr<creature>& animal)
     if (mod_idx(animal->m_current_position) == mod_idx(animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]))
     {
 
-        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->y_position)
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->m_position_y)
         {
-            animal->y_position += effective_range;
+            animal->m_position_y += effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y <= animal->y_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y <= animal->m_position_y)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
@@ -449,9 +466,9 @@ void world::animal_hunt(std::shared_ptr<creature>& animal)
 
         else
         {
-            animal->y_position -= effective_range;
+            animal->m_position_y -= effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
@@ -464,17 +481,17 @@ void world::animal_hunt(std::shared_ptr<creature>& animal)
 
     else
     {
-        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->m_position_x)
         {
-            animal->x_position += effective_range;
+            animal->m_position_x += effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
                 m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
-                animal->x_position = m_tile_map[animal->m_current_position].m_pos.x;
-                animal->y_position = m_tile_map[animal->m_current_position].m_pos.y;
+                animal->m_position_x = m_tile_map[animal->m_current_position].m_pos.x;
+                animal->m_position_y = m_tile_map[animal->m_current_position].m_pos.y;
                 animal->m_health -= 2;
                 animal->m_path_to_current_target.pop_back();
             }
@@ -482,9 +499,9 @@ void world::animal_hunt(std::shared_ptr<creature>& animal)
 
         else
         {
-            animal->x_position -= effective_range;
+            animal->m_position_x -= effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
@@ -504,18 +521,18 @@ void world::animal_attack(std::shared_ptr<creature>& animal)
         return;
     }
 
-    if (animal->currrent_target->m_health <= 0)
+    if (animal->m_currrent_target->m_health <= 0)
     {
         animal->m_current_state = STATE::REST;
-        animal->currrent_target->m_current_state = STATE::DEAD;
-        animal->currrent_target = NULL;
+        animal->m_currrent_target->m_current_state = STATE::DEAD;
+        animal->m_currrent_target = NULL;
         return;
     }
 
-    animal->currrent_target->m_health -= animal->m_strength;
+    animal->m_currrent_target->m_health -= animal->m_strength;
     animal->m_health += animal->m_strength / 2;
 
-    if (path_to_target(animal, animal->currrent_target).size() > 0)
+    if (path_to_target(animal, animal->m_currrent_target).size() > 0)
     {
         animal->m_current_state = STATE::HUNT;
     }
@@ -570,8 +587,8 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
         return false;
     }
 
-    new_creature->x_position = m_tile_map[position].m_pos.x;
-    new_creature->y_position = m_tile_map[position].m_pos.y;
+    new_creature->m_position_x = m_tile_map[position].m_pos.x;
+    new_creature->m_position_y = m_tile_map[position].m_pos.y;
 
     m_creature_map.push_back(new_creature);
     m_tile_map[position].m_creatures_on_tile.push_back(new_creature);
@@ -599,8 +616,8 @@ bool world::add_creature(const std::shared_ptr<creature_type>& type, int positio
         return false;
     }
 
-    new_creature->x_position = m_tile_map[position].m_pos.x;
-    new_creature->y_position = m_tile_map[position].m_pos.y;
+    new_creature->m_position_x = m_tile_map[position].m_pos.x;
+    new_creature->m_position_y = m_tile_map[position].m_pos.y;
 
     m_creature_map.push_back(new_creature);
     m_tile_map[position].m_creatures_on_tile.push_back(new_creature);
@@ -617,6 +634,13 @@ void world::simulation_step()
         if (entity->m_health <= 0)
         {
             entity_die(entity);
+            entity->m_steps_since_death++;
+
+            if (entity->m_steps_since_death >= 10)
+            {
+                m_tile_map[entity->m_current_position].delete_creature_from_tile(entity);
+            }
+
             continue;
         }
 
@@ -1050,11 +1074,23 @@ void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
     if (animal->m_path_to_current_target.size() == 1)
     {
         animal->m_current_state = STATE::REST;
-        animal->steps_since_last_event = 0;
+        animal->m_steps_since_last_rest = 0;
     }
 
     double range = ((double)animal->m_speed * 0.5) / 100;
-    int terrain_bias = m_terrain_bias_land.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+
+    int terrain_bias;
+
+    if (animal->terrain_type() == PROPERTIES::LANDBEWOHNER)
+    {
+        terrain_bias = m_terrain_bias_land.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+    }
+
+    else
+    {
+        terrain_bias = m_terrain_bias_water.find(m_tile_map[animal->m_current_position].m_terrain_type)->second;
+    }
+
     double effective_range = range / terrain_bias;
     
     // No path available
@@ -1065,11 +1101,11 @@ void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
     if (mod_idx(animal->m_current_position) == mod_idx(animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]))
     {
 
-        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->y_position)
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.y >= animal->m_position_y)
         {
-            animal->y_position += effective_range;
+            animal->m_position_y += effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->y_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->m_position_y)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
@@ -1081,9 +1117,9 @@ void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
 
         else
         {
-            animal->y_position -= effective_range;
+            animal->m_position_y -= effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
@@ -1096,17 +1132,17 @@ void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
 
     else 
     {
-        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+        if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->m_position_x)
         {
-            animal->x_position += effective_range;
+            animal->m_position_x += effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x <= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];
                 m_tile_map[animal->m_current_position].add_creature_to_tile(animal);
-                animal->x_position = m_tile_map[animal->m_current_position].m_pos.x;
-                animal->y_position = m_tile_map[animal->m_current_position].m_pos.y;
+                animal->m_position_x = m_tile_map[animal->m_current_position].m_pos.x;
+                animal->m_position_y = m_tile_map[animal->m_current_position].m_pos.y;
                 animal->m_health -= 2;
                 animal->m_path_to_current_target.pop_back();
             }
@@ -1114,9 +1150,9 @@ void world::animal_make_wander_step(std::shared_ptr<creature>& animal)
 
         else
         {
-            animal->x_position -= effective_range;
+            animal->m_position_x -= effective_range;
 
-            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->x_position)
+            if (m_tile_map[animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1]].m_pos.x >= animal->m_position_x)
             {
                 m_tile_map[animal->m_current_position].delete_creature_from_tile(animal);
                 animal->m_current_position = animal->m_path_to_current_target[animal->m_path_to_current_target.size() - 1];

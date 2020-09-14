@@ -41,6 +41,9 @@ public:
     // Pixmap for the path symbol
     QPixmap m_path_pixmap;
 
+    // Pixmap for the dead symbol
+    QPixmap m_dead_pixmap;
+
     //TODO: In Konstruktor auslagern
     bio_sim_model* m_model = nullptr;
 
