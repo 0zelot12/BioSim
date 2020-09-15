@@ -98,25 +98,41 @@ private:
 	// Returns tile at the given index
 	tile* idx_to_tile(int idx);
 
+	// Returns number of creatures of same type in specified range
 	int number_of_equal_creatures(const std::shared_ptr<creature>& entity, unsigned int range);
+
+	// Returns number of creatures of same type on specified tile
 	int number_of_equal_creatures_on_tile(const std::shared_ptr<creature>& entity, const tile& tile);
 
-	void entity_die(std::shared_ptr<creature>& entity);
+	// Returns number of creatures of same type on specified tile
+	int number_of_animals_on_tile(const tile& tile);
+
+	// Returns number of creatures of same type on specified tile
+	int number_of_plants_on_tile(const tile& tile);
 
 	void plant_wait(std::shared_ptr<creature>& plant, const TERRAIN_TYPE& terrain_type);
+
+	//Returns true in case of success, false otherwise
 	bool plant_grow(std::shared_ptr<creature>& plant);
 
-	void animal_set_wander_target(std::shared_ptr<creature>& animal);
-	void animal_make_wander_step(std::shared_ptr<creature>& animal);
 	void animal_rest(std::shared_ptr<creature>& animal);
 	void animal_mate(std::shared_ptr<creature>& animal);
 
+	// Checks reqirements of MATE state, returns true if transition was successful, false otherwise
 	bool mate_transition(std::shared_ptr<creature>& animal);
+
+	// Checks reqirements of HUNT state, returns true if transition was successful, false otherwise
 	bool hunt_transition(std::shared_ptr<creature>& animal);
-
-
-
 	void animal_hunt(std::shared_ptr<creature>& animal);
+
+	// Sets random target for wandering
+	void animal_set_wander_target(std::shared_ptr<creature>& animal);
+	// Make single wanderstep
+	void animal_make_wander_step(std::shared_ptr<creature>& animal);
+
 	void animal_attack(std::shared_ptr<creature>& animal);
+
+	// Sets state of entity to DEAD
+	void entity_die(std::shared_ptr<creature>& entity);
 
 };

@@ -6,6 +6,12 @@
 #include <vector>
 #include <string>
 
+/**
+*************************************************************************
+* @enum STATE
+*
+* Represents state of one animal in simualation
+*************************************************************************/
 enum class STATE
 {
 	WAIT,
@@ -19,7 +25,15 @@ enum class STATE
 	NEW
 };
 
-struct TYPES {
+
+/**
+*************************************************************************
+* @struct TYPES
+*
+* Types of properties as data object for simpler access
+*************************************************************************/
+struct TYPES
+{
 	PROPERTIES terrain_type, entity_type, prey_type;
 };
 
@@ -44,6 +58,7 @@ public:
 	// Returns wether the creature is a land or water creature
 	PROPERTIES terrain_type();
 
+	// Returns wether the creature is an animal or a plant
 	PROPERTIES entity_type();
 
 	// Returns wether the creature eats meat or plants
